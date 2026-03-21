@@ -1,0 +1,81 @@
+2026-03-20T22:45:57.919-06:00  INFO 23604 --- [HealtAccess] [main] a.u.h.HealtAccessApplicationTests        : Starting HealtAccessApplicationTests using Java 23.0.2 with PID 23604 (started by USUARIO in D:\SpringData\Proyecto\HealtAccess)
+2026-03-20T22:45:57.922-06:00  INFO 23604 --- [HealtAccess] [main] a.u.h.HealtAccessApplicationTests        : No active profile set, falling back to 1 default profile: "default"
+2026-03-20T22:46:00.221-06:00  INFO 23604 --- [HealtAccess] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-20T22:46:00.274-06:00  INFO 23604 --- [HealtAccess] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 26 ms. Found 0 JPA repository interfaces.
+2026-03-20T22:46:01.453-06:00  INFO 23604 --- [HealtAccess] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-20T22:46:01.573-06:00  INFO 23604 --- [HealtAccess] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.44.Final
+2026-03-20T22:46:01.652-06:00  INFO 23604 --- [HealtAccess] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-20T22:46:02.431-06:00  INFO 23604 --- [HealtAccess] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-20T22:46:02.502-06:00  INFO 23604 --- [HealtAccess] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-20T22:46:02.883-06:00  INFO 23604 --- [HealtAccess] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6f68756d
+2026-03-20T22:46:02.886-06:00  INFO 23604 --- [HealtAccess] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-20T22:46:02.960-06:00  WARN 23604 --- [HealtAccess] [main] org.hibernate.dialect.Dialect            : HHH000511: The 5.5.5 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
+2026-03-20T22:46:02.969-06:00  WARN 23604 --- [HealtAccess] [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-20T22:46:03.017-06:00  INFO 23604 --- [HealtAccess] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 5.5.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-20T22:46:03.685-06:00  INFO 23604 --- [HealtAccess] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-20T22:46:03.695-06:00  INFO 23604 --- [HealtAccess] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-20T22:46:04.235-06:00  WARN 23604 --- [HealtAccess] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-20T22:46:05.600-06:00  WARN 23604 --- [HealtAccess] [main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 410c88fc-c7ce-45df-b046-4dec820a187d
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-20T22:46:05.626-06:00  INFO 23604 --- [HealtAccess] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-20T22:46:06.030-06:00  INFO 23604 --- [HealtAccess] [main] a.u.h.HealtAccessApplicationTests        : Started HealtAccessApplicationTests in 9.25 seconds (process running for 12.892)
+2026-03-20T22:46:06.036-06:00  WARN 23604 --- [HealtAccess] [main] o.s.core.events.SpringDocAppInitializer  : SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
+2026-03-20T22:46:06.037-06:00  WARN 23604 --- [HealtAccess] [main] o.s.core.events.SpringDocAppInitializer  : SpringDoc /swagger-ui.html endpoint is enabled by default. To disable it in production, set the property 'springdoc.swagger-ui.enabled=false'
+2026-03-20T22:46:07.361-06:00  INFO 23604 --- [HealtAccess] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-20T22:46:07.366-06:00  INFO 23604 --- [HealtAccess] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-20T22:46:07.382-06:00  INFO 23604 --- [HealtAccess] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-20T22:48:21.036-06:00  INFO 19804 --- [HealtAccess] [main] a.u.healtaccess.HealtAccessApplication   : Starting HealtAccessApplication using Java 23.0.2 with PID 19804 (D:\SpringData\Proyecto\HealtAccess\target\classes started by USUARIO in D:\SpringData\Proyecto\HealtAccess)
+2026-03-20T22:48:21.041-06:00  INFO 19804 --- [HealtAccess] [main] a.u.healtaccess.HealtAccessApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-03-20T22:48:23.423-06:00  INFO 19804 --- [HealtAccess] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-20T22:48:23.591-06:00  INFO 19804 --- [HealtAccess] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 151 ms. Found 13 JPA repository interfaces.
+2026-03-20T22:48:24.687-06:00  INFO 19804 --- [HealtAccess] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-20T22:48:24.713-06:00  INFO 19804 --- [HealtAccess] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-20T22:48:24.714-06:00  INFO 19804 --- [HealtAccess] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-03-20T22:48:24.814-06:00  INFO 19804 --- [HealtAccess] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-20T22:48:24.815-06:00  INFO 19804 --- [HealtAccess] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3615 ms
+2026-03-20T22:48:25.068-06:00  INFO 19804 --- [HealtAccess] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-20T22:48:25.147-06:00  INFO 19804 --- [HealtAccess] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.44.Final
+2026-03-20T22:48:25.205-06:00  INFO 19804 --- [HealtAccess] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-20T22:48:25.913-06:00  INFO 19804 --- [HealtAccess] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-20T22:48:25.963-06:00  INFO 19804 --- [HealtAccess] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-20T22:48:26.330-06:00  INFO 19804 --- [HealtAccess] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4ec427
+2026-03-20T22:48:26.335-06:00  INFO 19804 --- [HealtAccess] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-20T22:48:26.414-06:00  WARN 19804 --- [HealtAccess] [main] org.hibernate.dialect.Dialect            : HHH000511: The 5.5.5 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
+2026-03-20T22:48:26.421-06:00  WARN 19804 --- [HealtAccess] [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-20T22:48:26.454-06:00  INFO 19804 --- [HealtAccess] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 5.5.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-20T22:48:28.572-06:00  INFO 19804 --- [HealtAccess] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-20T22:48:28.765-06:00  INFO 19804 --- [HealtAccess] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-20T22:48:29.756-06:00  INFO 19804 --- [HealtAccess] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-20T22:48:30.807-06:00  WARN 19804 --- [HealtAccess] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-20T22:48:31.239-06:00  INFO 19804 --- [HealtAccess] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-03-20T22:48:32.126-06:00  INFO 19804 --- [HealtAccess] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-03-20T22:48:32.141-06:00  INFO 19804 --- [HealtAccess] [main] a.u.healtaccess.HealtAccessApplication   : Started HealtAccessApplication in 12.146 seconds (process running for 13.124)
+2026-03-20T22:48:32.146-06:00  WARN 19804 --- [HealtAccess] [main] o.s.core.events.SpringDocAppInitializer  : SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
+2026-03-20T22:48:32.146-06:00  WARN 19804 --- [HealtAccess] [main] o.s.core.events.SpringDocAppInitializer  : SpringDoc /swagger-ui.html endpoint is enabled by default. To disable it in production, set the property 'springdoc.swagger-ui.enabled=false'
+2026-03-20T22:48:40.380-06:00  INFO 19804 --- [HealtAccess] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-20T22:48:40.381-06:00  INFO 19804 --- [HealtAccess] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-03-20T22:48:40.383-06:00  INFO 19804 --- [HealtAccess] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-03-20T22:48:43.049-06:00  INFO 19804 --- [HealtAccess] [http-nio-8080-exec-8] o.springdoc.api.AbstractOpenApiResource  : Init duration for springdoc-openapi is: 1980 ms
+2026-03-20T22:50:47.049-06:00  INFO 19804 --- [HealtAccess] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-20T22:50:47.057-06:00  INFO 19804 --- [HealtAccess] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-03-20T22:50:47.068-06:00  INFO 19804 --- [HealtAccess] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-20T22:50:47.073-06:00  INFO 19804 --- [HealtAccess] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-20T22:50:47.087-06:00  INFO 19804 --- [HealtAccess] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
