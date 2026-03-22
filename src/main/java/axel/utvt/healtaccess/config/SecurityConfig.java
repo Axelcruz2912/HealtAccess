@@ -27,23 +27,26 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints públicos
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // ========== ENDPOINTS PÚBLICOS ==========
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/logout").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
 
-                        // ========== AGREGAR RUTAS DE SWAGGER ==========
+                        // ========== RUTAS DE SWAGGER ==========
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
-                        // =============================================
+                        // =====================================
 
-                        // Endpoints por rol
-                        .requestMatchers("/api/medico/**").hasAuthority("MEDICO")
-                        .requestMatchers("/api/farmacia/**").hasAuthority("FARMACIA")
+                        // ========== TODOS LOS ENDPOINTS PROTEGIDOS ==========
+                        // ADMINISTRADOR puede acceder a TODO
                         .requestMatchers("/api/admin/**").hasAuthority("ADMINISTRADOR")
+                        .requestMatchers("/api/medico/**").hasAnyAuthority("MEDICO", "ADMINISTRADOR")
+                        .requestMatchers("/api/farmacia/**").hasAnyAuthority("FARMACIA", "ADMINISTRADOR")
                         .requestMatchers("/api/recetas/**").hasAnyAuthority("MEDICO", "FARMACIA", "ADMINISTRADOR")
+                        // ====================================================
 
                         .anyRequest().authenticated()
                 )
