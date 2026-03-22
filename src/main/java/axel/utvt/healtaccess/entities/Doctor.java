@@ -1,6 +1,6 @@
 package axel.utvt.healtaccess.entities;
 
-import axel.utvt.healtaccess.entities.enums.Rol;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -21,6 +21,8 @@ public class Doctor {
     @Column(name = "id_doctor")
     private Integer idDoctor;
 
+    // AGREGAR @JsonIgnore AQUÍ
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "id_usuario", nullable = false, unique = true)
     private Usuario usuario;
@@ -45,13 +47,11 @@ public class Doctor {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Relaciones
+    @JsonIgnore
     @OneToMany(mappedBy = "doctor")
     private List<Cita> citas;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "doctor")
     private List<DoctorFarmacia> doctorFarmacias;
-
-    // @OneToMany(mappedBy = "doctor")
-    // private List<Receta> recetas;
 }

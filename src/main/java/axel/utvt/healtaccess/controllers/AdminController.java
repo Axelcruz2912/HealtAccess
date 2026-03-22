@@ -2,12 +2,14 @@ package axel.utvt.healtaccess.controllers;
 
 import axel.utvt.healtaccess.dto.CambioEstadoRequest;
 import axel.utvt.healtaccess.dto.MedicamentoRequest;
+import axel.utvt.healtaccess.dto.UsuarioRequest;
 import axel.utvt.healtaccess.entities.*;
 import axel.utvt.healtaccess.repositories.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,11 +26,57 @@ public class AdminController {
     private final MedicamentoRepository medicamentoRepository;
     private final RecetaRepository recetaRepository;
     private final ClienteRepository clienteRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // ========== USUARIOS ==========
+
     @GetMapping("/usuarios")
     public ResponseEntity<List<Usuario>> listarUsuarios() {
         return ResponseEntity.ok(usuarioRepository.findAll());
+    }
+
+    @PostMapping("/usuarios")
+    public ResponseEntity<Usuario> crearUsuario(@Valid @RequestBody UsuarioRequest request) {
+        // Verificar si el correo ya existe
+        if (usuarioRepository.existsByCorreo(request.getCorreo())) {
+            throw new RuntimeException("El correo ya está registrado");
+        }
+
+        // Crear nuevo usuario
+        Usuario usuario = new Usuario();
+        usuario.setNombre(request.getNombre());
+        usuario.setApellido(request.getApellido());
+        usuario.setCorreo(request.getCorreo());
+        usuario.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        usuario.setRol(request.getRol());
+        usuario.setActivo(true);
+        usuario.setIntentosFallidos(0);
+
+        Usuario savedUsuario = usuarioRepository.save(usuario);
+
+        // Si el rol es MEDICO, crear registro en Doctor
+        if (request.getRol().name().equals("MEDICO") && request.getEspecialidad() != null) {
+            Doctor doctor = new Doctor();
+            doctor.setUsuario(savedUsuario);
+            doctor.setEspecialidad(request.getEspecialidad());
+            doctor.setCedulaProfesional(request.getCedulaProfesional());
+            doctor.setAniosExperiencia(request.getAniosExperiencia());
+            doctor.setTelefono(request.getTelefono());
+            doctorRepository.save(doctor);
+        }
+
+        // Si el rol es FARMACIA, crear registro en Farmacia
+        if (request.getRol().name().equals("FARMACIA") && request.getNombreFarmacia() != null) {
+            Farmacia farmacia = new Farmacia();
+            farmacia.setUsuario(savedUsuario);
+            farmacia.setNombre(request.getNombreFarmacia());
+            farmacia.setDireccion(request.getDireccionFarmacia());
+            farmacia.setTelefono(request.getTelefonoFarmacia());
+            farmacia.setHorario(request.getHorarioFarmacia());
+            farmaciaRepository.save(farmacia);
+        }
+
+        return ResponseEntity.ok(savedUsuario);
     }
 
     @PutMapping("/usuarios/{id}/estado")

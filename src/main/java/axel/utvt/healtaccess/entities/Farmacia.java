@@ -1,5 +1,6 @@
 package axel.utvt.healtaccess.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,6 +21,8 @@ public class Farmacia {
     @Column(name = "id_farmacia")
     private Integer idFarmacia;
 
+    // AGREGAR @JsonIgnore AQUÍ
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "id_usuario", nullable = false, unique = true)
     private Usuario usuario;
@@ -44,13 +47,15 @@ public class Farmacia {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Relaciones
+    @JsonIgnore
     @OneToMany(mappedBy = "farmacia")
     private List<DoctorFarmacia> doctorFarmacias;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "farmacia")
     private List<Receta> recetas;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "farmacia")
     private List<Inventario> inventarios;
 }
