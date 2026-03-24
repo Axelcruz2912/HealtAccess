@@ -17,20 +17,21 @@ async function cargarRecetasPendientes() {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        console.log('Status recetas pendientes:', response.status);
-
         if (response.ok) {
             const recetas = await response.json();
             console.log('Recetas pendientes:', recetas);
             mostrarRecetasPendientes(recetas);
-            document.getElementById('totalPendientes').innerText = recetas.length;
+            const totalPendientes = document.getElementById('totalPendientes');
+            if (totalPendientes) totalPendientes.innerText = recetas.length;
         } else {
             console.error('Error al cargar recetas pendientes');
-            document.getElementById('recetasPendientesList').innerHTML = '<p class="error">Error al cargar recetas pendientes</p>';
+            const container = document.getElementById('recetasPendientesList');
+            if (container) container.innerHTML = '<p class="error">Error al cargar recetas pendientes</p>';
         }
     } catch (error) {
         console.error('Error de conexión:', error);
-        document.getElementById('recetasPendientesList').innerHTML = '<p class="error">Error de conexión</p>';
+        const container = document.getElementById('recetasPendientesList');
+        if (container) container.innerHTML = '<p class="error">Error de conexión</p>';
     }
 }
 
@@ -42,19 +43,19 @@ async function cargarInventario() {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        console.log('Status inventario:', response.status);
-
         if (response.ok) {
             const inventario = await response.json();
             console.log('Inventario:', inventario);
             mostrarInventario(inventario);
         } else {
             console.error('Error al cargar inventario');
-            document.getElementById('inventarioList').innerHTML = '<p class="error">Error al cargar inventario</p>';
+            const container = document.getElementById('inventarioList');
+            if (container) container.innerHTML = '<p class="error">Error al cargar inventario</p>';
         }
     } catch (error) {
         console.error('Error de conexión:', error);
-        document.getElementById('inventarioList').innerHTML = '<p class="error">Error de conexión</p>';
+        const container = document.getElementById('inventarioList');
+        if (container) container.innerHTML = '<p class="error">Error de conexión</p>';
     }
 }
 
@@ -66,20 +67,21 @@ async function cargarStockBajo() {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        console.log('Status stock bajo:', response.status);
-
         if (response.ok) {
             const stockBajo = await response.json();
             console.log('Stock bajo:', stockBajo);
             mostrarStockBajo(stockBajo);
-            document.getElementById('totalStockBajo').innerText = stockBajo.length;
+            const totalStockBajo = document.getElementById('totalStockBajo');
+            if (totalStockBajo) totalStockBajo.innerText = stockBajo.length;
         } else {
             console.error('Error al cargar stock bajo');
-            document.getElementById('stockBajoList').innerHTML = '<p class="error">Error al cargar stock bajo</p>';
+            const container = document.getElementById('stockBajoList');
+            if (container) container.innerHTML = '<p class="error">Error al cargar stock bajo</p>';
         }
     } catch (error) {
         console.error('Error de conexión:', error);
-        document.getElementById('stockBajoList').innerHTML = '<p class="error">Error de conexión</p>';
+        const container = document.getElementById('stockBajoList');
+        if (container) container.innerHTML = '<p class="error">Error de conexión</p>';
     }
 }
 
@@ -91,28 +93,29 @@ async function cargarRecetasDispensadas() {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        console.log('Status recetas dispensadas:', response.status);
-
         if (response.ok) {
             const recetas = await response.json();
             console.log('Recetas dispensadas:', recetas);
             mostrarRecetasDispensadas(recetas);
-            document.getElementById('totalDispensadas').innerText = recetas.length;
+            const totalDispensadas = document.getElementById('totalDispensadas');
+            if (totalDispensadas) totalDispensadas.innerText = recetas.length;
         } else {
             console.error('Error al cargar recetas dispensadas');
-            const error = await response.json();
-            console.error('Error:', error);
-            document.getElementById('recetasDispensadasList').innerHTML = '<p class="error">Error al cargar historial: ' + (error.message || '') + '</p>';
+            const container = document.getElementById('recetasDispensadasList');
+            if (container) container.innerHTML = '<p class="error">Error al cargar historial</p>';
         }
     } catch (error) {
         console.error('Error de conexión:', error);
-        document.getElementById('recetasDispensadasList').innerHTML = '<p class="error">Error de conexión</p>';
+        const container = document.getElementById('recetasDispensadasList');
+        if (container) container.innerHTML = '<p class="error">Error de conexión</p>';
     }
-
+}
 
 // ========== MOSTRAR RECETAS PENDIENTES ==========
 function mostrarRecetasPendientes(recetas) {
     const container = document.getElementById('recetasPendientesList');
+    if (!container) return;
+
     if (!recetas || recetas.length === 0) {
         container.innerHTML = '<p class="text-muted">No hay recetas pendientes</p>';
         return;
@@ -120,28 +123,29 @@ function mostrarRecetasPendientes(recetas) {
 
     let html = `<table class="data-table">
         <thead>
-            <tr><th>ID</th><th>Fecha</th><th>Diagnóstico</th><th>Total</th><th>Acciones</th></thead>
+            32<th>ID</th><th>Fecha</th><th>Diagnóstico</th><th>Total</th><th>Acciones</th>
+        </thead>
         <tbody>`;
 
     recetas.forEach(receta => {
-        html += `<tr>
+        html += `     <tr>
             <td>${receta.idReceta}</td>
             <td>${receta.fechaEmision}</td>
-            <td>${receta.diagnostico?.substring(0, 50) || '-'}</td>
+            <td>${receta.diagnostico?.substring(0, 50) || '-'}${receta.diagnostico?.length > 50 ? '...' : ''}</td>
             <td>$${receta.total}</td>
-            <td>
-                <button class="btn-success" onclick="abrirModalDispensar(${receta.idReceta})">Dispensar</button>
-            </td>
+            <td><button class="btn-success" onclick="abrirModalDispensar(${receta.idReceta})">Dispensar</button></td>
         </tr>`;
     });
 
-    html += `</tbody>  close`;
+    html += `</tbody></table>`;
     container.innerHTML = html;
 }
 
 // ========== MOSTRAR INVENTARIO ==========
 function mostrarInventario(inventario) {
     const container = document.getElementById('inventarioList');
+    if (!container) return;
+
     if (!inventario || inventario.length === 0) {
         container.innerHTML = '<p class="text-muted">No hay inventario registrado</p>';
         return;
@@ -149,12 +153,13 @@ function mostrarInventario(inventario) {
 
     let html = `<table class="data-table">
         <thead>
-            <tr><th>ID</th><th>Medicamento</th><th>Stock</th><th>Stock Mínimo</th><th>Estado</th></thead>
+            <tr><th>ID</th><th>Medicamento</th><th>Stock</th><th>Stock Mínimo</th><th>Estado</th></tr>
+        </thead>
         <tbody>`;
 
     inventario.forEach(item => {
         const estadoClass = item.stock <= item.stockMinimo ? 'status-pendiente' : 'status-surtida';
-        const estadoTexto = item.stock <= item.stockMinimo ? '️ Stock Bajo' : ' Normal';
+        const estadoTexto = item.stock <= item.stockMinimo ? ' Stock Bajo' : ' Normal';
         const nombreMed = item.medicamento?.nombre || `ID: ${item.id?.idMedicamento}`;
 
         html += `<tr>
@@ -166,13 +171,15 @@ function mostrarInventario(inventario) {
         </tr>`;
     });
 
-    html += `</tbody>  close`;
+    html += `</tbody></table>`;
     container.innerHTML = html;
 }
 
 // ========== MOSTRAR STOCK BAJO ==========
 function mostrarStockBajo(stockBajo) {
     const container = document.getElementById('stockBajoList');
+    if (!container) return;
+
     if (!stockBajo || stockBajo.length === 0) {
         container.innerHTML = '<p class="text-muted">No hay productos con stock bajo</p>';
         return;
@@ -180,7 +187,8 @@ function mostrarStockBajo(stockBajo) {
 
     let html = `<table class="data-table">
         <thead>
-            <tr><th>ID</th><th>Medicamento</th><th>Stock Actual</th><th>Stock Mínimo</th><th>Faltante</th></thead>
+            <tr><th>ID</th><th>Medicamento</th><th>Stock Actual</th><th>Stock Mínimo</th><th>Faltante</th></tr>
+        </thead>
         <tbody>`;
 
     stockBajo.forEach(item => {
@@ -196,13 +204,15 @@ function mostrarStockBajo(stockBajo) {
         </tr>`;
     });
 
-    html += `</tbody>  close`;
+    html += `</tbody></table>`;
     container.innerHTML = html;
 }
 
 // ========== MOSTRAR RECETAS DISPENSADAS ==========
 function mostrarRecetasDispensadas(recetas) {
     const container = document.getElementById('recetasDispensadasList');
+    if (!container) return;
+
     if (!recetas || recetas.length === 0) {
         container.innerHTML = '<p class="text-muted">No hay recetas dispensadas</p>';
         return;
@@ -210,19 +220,20 @@ function mostrarRecetasDispensadas(recetas) {
 
     let html = `<table class="data-table">
         <thead>
-            <tr><th>ID</th><th>Fecha</th><th>Diagnóstico</th><th>Total</th></thead>
+            <tr><th>ID</th><th>Fecha</th><th>Diagnóstico</th><th>Total</th></tr>
+        </thead>
         <tbody>`;
 
     recetas.forEach(receta => {
         html += `<tr>
             <td>${receta.idReceta}</td>
             <td>${receta.fechaEmision}</td>
-            <td>${receta.diagnostico?.substring(0, 50) || '-'}</td>
+            <td>${receta.diagnostico?.substring(0, 50) || '-'}${receta.diagnostico?.length > 50 ? '...' : ''}</td>
             <td>$${receta.total}</td>
         </tr>`;
     });
 
-    html += `</tbody>  close`;
+    html += `</tbody></table>`;
     container.innerHTML = html;
 }
 
@@ -237,8 +248,12 @@ async function abrirModalDispensar(idReceta) {
             const receta = await response.json();
             recetaSeleccionada = receta;
 
-            document.getElementById('modalRecetaId').innerText = receta.idReceta;
-            document.getElementById('modalTotal').innerText = receta.total;
+            const modalRecetaId = document.getElementById('modalRecetaId');
+            const modalTotal = document.getElementById('modalTotal');
+            const modalMedicamentos = document.getElementById('modalMedicamentos');
+
+            if (modalRecetaId) modalRecetaId.innerText = receta.idReceta;
+            if (modalTotal) modalTotal.innerText = receta.total;
 
             let medicamentosHtml = '<strong>Medicamentos:</strong><ul>';
             if (receta.detalles) {
@@ -247,9 +262,10 @@ async function abrirModalDispensar(idReceta) {
                 });
             }
             medicamentosHtml += '</ul>';
-            document.getElementById('modalMedicamentos').innerHTML = medicamentosHtml;
+            if (modalMedicamentos) modalMedicamentos.innerHTML = medicamentosHtml;
 
-            document.getElementById('modalDispensar').style.display = 'flex';
+            const modal = document.getElementById('modalDispensar');
+            if (modal) modal.style.display = 'flex';
         } else {
             alert('Error al cargar la receta');
         }
@@ -260,7 +276,8 @@ async function abrirModalDispensar(idReceta) {
 }
 
 function cerrarModal() {
-    document.getElementById('modalDispensar').style.display = 'none';
+    const modal = document.getElementById('modalDispensar');
+    if (modal) modal.style.display = 'none';
     recetaSeleccionada = null;
 }
 

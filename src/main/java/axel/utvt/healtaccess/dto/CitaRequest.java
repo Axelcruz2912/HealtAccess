@@ -10,7 +10,6 @@ import java.time.LocalTime;
 public class CitaRequest {
 
     @NotNull(message = "La fecha es obligatoria")
-    @Future(message = "La fecha debe ser futura")
     private LocalDate fecha;
 
     @NotNull(message = "La hora es obligatoria")

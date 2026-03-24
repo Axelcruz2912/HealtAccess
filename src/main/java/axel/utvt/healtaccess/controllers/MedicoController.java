@@ -2,6 +2,7 @@ package axel.utvt.healtaccess.controllers;
 
 import axel.utvt.healtaccess.config.CustomUserDetails;
 import axel.utvt.healtaccess.dto.CitaRequest;
+import axel.utvt.healtaccess.dto.CitaResponse;
 import axel.utvt.healtaccess.dto.RecetaRequest;
 import axel.utvt.healtaccess.dto.RecetaResponse;
 import axel.utvt.healtaccess.entities.Cita;
@@ -84,14 +85,13 @@ public class MedicoController {
 
         return ResponseEntity.ok(medicoService.verificarDisponibilidadMedicamento(farmacia.getIdFarmacia(), idMedicamento));
     }
-
     @PostMapping("/citas")
-    public ResponseEntity<Cita> crearCita(
+    public ResponseEntity<CitaResponse> crearCita(
             @Valid @RequestBody CitaRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpServletRequest httpRequest) {
 
-        Cita cita = medicoService.crearCita(request, userDetails.getIdUsuario(), httpRequest.getRemoteAddr());
+        CitaResponse cita = medicoService.crearCita(request, userDetails.getIdUsuario(), httpRequest.getRemoteAddr());
         return ResponseEntity.ok(cita);
     }
 
