@@ -1,4 +1,5 @@
 let medicamentosGlobal = [];
+let citasGlobal = []; // Almacenar citas globalmente
 
 // Cargar datos iniciales
 async function cargarDatosIniciales() {
@@ -6,16 +7,92 @@ async function cargarDatosIniciales() {
     await cargarMedicamentos();
     await cargarRecetas();
     await cargarCitas();
+    await cargarClientes();
+
+    // Configurar fecha mínima para el input de fecha
+    const fechaInput = document.getElementById('citaFecha');
+    if (fechaInput) {
+        fechaInput.min = new Date().toISOString().split('T')[0];
+    }
+
+    // Configurar el select de citas
+    configurarSelectCitas();
+}
+
+// ========== CONFIGURAR SELECT DE CITAS ==========
+function configurarSelectCitas() {
+    const selectCitas = document.getElementById('recetaCitaId');
+    if (!selectCitas) return;
+
+    // Convertir input text a select
+    const parent = selectCitas.parentElement;
+    const newSelect = document.createElement('select');
+    newSelect.id = 'recetaCitaId';
+    newSelect.className = 'citas-select';
+    newSelect.innerHTML = '<option value="">-- Seleccione una cita --</option>';
+
+    // Reemplazar input con select
+    parent.replaceChild(newSelect, selectCitas);
+
+    // Cargar citas en el select
+    cargarCitasEnSelect();
+}
+
+async function cargarCitasEnSelect() {
+    try {
+        const response = await fetch('/api/medico/citas', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            citasGlobal = await response.json();
+            const select = document.getElementById('recetaCitaId');
+            if (!select) return;
+
+            // Filtrar solo citas PROGRAMADAS (sin receta aún)
+            const citasDisponibles = citasGlobal.filter(cita =>
+                cita.estado === 'PROGRAMADA' && !cita.receta
+            );
+
+            select.innerHTML = '<option value="">-- Seleccione una cita --</option>';
+
+            citasDisponibles.forEach(cita => {
+                const option = document.createElement('option');
+                option.value = cita.idCita;
+                option.textContent = `Cita #${cita.idCita} - ${cita.fecha} ${cita.hora} - ${cita.cliente?.nombre || 'Paciente'} ${cita.cliente?.apellido || ''}`;
+                option.setAttribute('data-cliente', `${cita.cliente?.nombre} ${cita.cliente?.apellido}`);
+                option.setAttribute('data-fecha', cita.fecha);
+                option.setAttribute('data-hora', cita.hora);
+                select.appendChild(option);
+            });
+
+            // Agregar evento para mostrar información de la cita seleccionada
+            select.onchange = function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const infoCita = document.getElementById('infoCitaSeleccionada');
+                if (infoCita && selectedOption.value) {
+                    infoCita.innerHTML = `
+                        <div class="cita-info">
+                            <strong>Paciente:</strong> ${selectedOption.getAttribute('data-cliente')}<br>
+                            <strong>Fecha:</strong> ${selectedOption.getAttribute('data-fecha')}<br>
+                            <strong>Hora:</strong> ${selectedOption.getAttribute('data-hora')}
+                        </div>
+                    `;
+                } else if (infoCita) {
+                    infoCita.innerHTML = '';
+                }
+            };
+        }
+    } catch (error) {
+        console.error('Error al cargar citas para select:', error);
+    }
 }
 
 // ========== CARGAR MEDICAMENTOS ==========
 async function cargarMedicamentos() {
     try {
         console.log('Intentando cargar medicamentos...');
-
-        // Usar el token de auth.js (variable global)
         const response = await fetch('/api/public/medicamentos-con-stock');
-
         console.log('Respuesta status:', response.status);
 
         if (response.ok) {
@@ -80,7 +157,6 @@ function cargarSelectMedicamentos() {
 
     console.log('Select cargado correctamente');
 
-    // Agregar evento para mostrar stock
     select.onchange = function() {
         const selectedOption = this.options[this.selectedIndex];
         const stock = parseInt(selectedOption.getAttribute('data-stock') || 0);
@@ -89,9 +165,9 @@ function cargarSelectMedicamentos() {
 
         if (stockInfo) {
             if (medicamentoId && stock > 0) {
-                stockInfo.innerHTML = `<span class="success-message"> Stock disponible: ${stock} unidades</span>`;
+                stockInfo.innerHTML = `<span class="success-message">✅ Stock disponible: ${stock} unidades</span>`;
             } else if (medicamentoId && stock <= 0) {
-                stockInfo.innerHTML = `<span class="error"> Medicamento sin stock disponible</span>`;
+                stockInfo.innerHTML = `<span class="error">❌ Medicamento sin stock disponible</span>`;
             } else {
                 stockInfo.innerHTML = '';
             }
@@ -131,7 +207,6 @@ function agregarMedicamentoDesdeSelect() {
         return;
     }
 
-    // Verificar si ya está agregado
     const itemsExistentes = document.querySelectorAll('.med-item');
     for (let item of itemsExistentes) {
         if (item.getAttribute('data-id') === medicamentoId) {
@@ -140,7 +215,6 @@ function agregarMedicamentoDesdeSelect() {
         }
     }
 
-    // Agregar medicamento a la lista
     const container = document.getElementById('medicamentosLista');
     if (!container) {
         console.error('Contenedor de medicamentos no encontrado');
@@ -164,7 +238,6 @@ function agregarMedicamentoDesdeSelect() {
     `;
     container.appendChild(newItem);
 
-    // Limpiar select y cantidad
     select.value = '';
     document.getElementById('selectCantidad').value = '';
     document.getElementById('selectIndicaciones').value = '';
@@ -204,11 +277,18 @@ async function cargarCitas() {
 
         if (response.ok) {
             const citas = await response.json();
+            citasGlobal = citas;
             mostrarCitas(citas);
-            document.getElementById('totalCitas').innerText = citas.length;
+
+            // Actualizar contadores
+            const citasProgramadas = citas.filter(c => c.estado === 'PROGRAMADA');
+            document.getElementById('totalCitas').innerText = citasProgramadas.length;
 
             const pacientesUnicos = [...new Set(citas.map(c => c.cliente?.idCliente))];
             document.getElementById('totalPacientes').innerText = pacientesUnicos.length;
+
+            // Recargar select de citas si existe
+            cargarCitasEnSelect();
         } else {
             document.getElementById('citasList').innerHTML = '<p class="error">Error al cargar citas</p>';
         }
@@ -219,11 +299,12 @@ async function cargarCitas() {
 
 // ========== CREAR RECETA ==========
 async function crearReceta() {
-    const idCita = document.getElementById('recetaCitaId').value;
+    const idCitaSelect = document.getElementById('recetaCitaId');
+    const idCita = idCitaSelect ? idCitaSelect.value : document.getElementById('recetaCitaId').value;
     const diagnostico = document.getElementById('recetaDiagnostico').value;
 
     if (!idCita || !diagnostico) {
-        mostrarMensaje('createRecetaMessage', 'Por favor complete ID de cita y diagnóstico', 'error');
+        mostrarMensaje('createRecetaMessage', 'Por favor seleccione una cita y complete el diagnóstico', 'error');
         return;
     }
 
@@ -267,84 +348,66 @@ async function crearReceta() {
         });
 
         if (response.ok) {
-            mostrarMensaje('createRecetaMessage', ' Receta creada exitosamente', 'success');
-            document.getElementById('recetaCitaId').value = '';
+            mostrarMensaje('createRecetaMessage', '✅ Receta creada exitosamente', 'success');
+
+            // Limpiar formulario
+            if (idCitaSelect) idCitaSelect.value = '';
             document.getElementById('recetaDiagnostico').value = '';
             document.getElementById('medicamentosLista').innerHTML = '';
+
+            // Recargar datos
             await cargarRecetas();
             await cargarMedicamentos();
+            await cargarCitas(); // Esto actualizará las citas y eliminará la usada
+
+            // Mostrar mensaje adicional
+            mostrarMensaje('createRecetaMessage', '✅ Receta creada. La cita ya no estará disponible para nuevas recetas', 'success');
         } else {
             const error = await response.json();
-            mostrarMensaje('createRecetaMessage', ' ' + error.message, 'error');
+            mostrarMensaje('createRecetaMessage', '❌ ' + error.message, 'error');
         }
     } catch (error) {
-        mostrarMensaje('createRecetaMessage', ' Error de conexión', 'error');
+        mostrarMensaje('createRecetaMessage', '❌ Error de conexión', 'error');
     }
 }
 
-// ========== FUNCIONES DE RENDERIZADO ==========
-function mostrarRecetas(recetas) {
-    const container = document.getElementById('recetasList');
-    if (!recetas || recetas.length === 0) {
-        container.innerHTML = '<p class="text-muted">No tienes recetas registradas</p>';
-        return;
-    }
-
-    let html = `<table class="data-table"><thead> <tr> <th>ID</th> <th>Fecha</th> <th>Diagnóstico</th> <th>Estado</th> <th>Total</th> <th>Acciones</th> </tr> </thead> <tbody>`;
-
-    recetas.forEach(receta => {
-        const estadoClass = receta.estado === 'PENDIENTE' ? 'status-pendiente' :
-                           (receta.estado === 'SURTIDA' ? 'status-surtida' : 'status-cancelada');
-
-        html += `<tr>
-            <td>${receta.idReceta}</td>
-            <td>${receta.fechaEmision}</td>
-            <td>${receta.diagnostico?.substring(0, 50) || '-'}${receta.diagnostico?.length > 50 ? '...' : ''}</td>
-            <td><span class="${estadoClass}">${receta.estado}</span></td>
-            <td>$${receta.total}</td>
-            <td><button class="btn-secondary" onclick="verDetalleReceta(${receta.idReceta})">Ver Detalle</button></td>
-        </tr>`;
-
-        if (receta.detalles && receta.detalles.length > 0) {
-            html += `<tr id="detalle-${receta.idReceta}" style="display: none;">
-                <td colspan="6"><div class="detalle-receta"><strong>Medicamentos:</strong><table><thead><tr><th>Medicamento</th><th>Cantidad</th><th>Indicaciones</th><th>Subtotal</th></tr></thead><tbody>`;
-            receta.detalles.forEach(d => {
-                html += `<tr><td>${d.medicamentoNombre}</td><td>${d.cantidad}</td><td>${d.indicaciones || '-'}</td><td>$${d.subtotal}</td></tr>`;
-            });
-            html += `</tbody></table></div></td></tr>`;
-        }
-    });
-
-    html += `</tbody></table>`;
-    container.innerHTML = html;
-}
-
+// ========== MOSTRAR CITAS (con botón deshabilitado si ya tiene receta) ==========
 function mostrarCitas(citas) {
     const container = document.getElementById('citasList');
-    if (!citas || citas.length === 0) {
+    // Filtrar solo citas PROGRAMADAS (no atendidas ni canceladas)
+    const citasProgramadas = citas.filter(c => c.estado === 'PROGRAMADA');
+
+    if (!citasProgramadas || citasProgramadas.length === 0) {
         container.innerHTML = '<p class="text-muted">No tienes citas programadas</p>';
         return;
     }
 
-    let html = `<table class="data-table"><thead><tr><th>ID</th><th>Fecha</th><th>Hora</th><th>Paciente</th><th>Motivo</th><th>Estado</th><th>Acción</th></tr></thead><tbody>`;
+    let html = `<table class="data-table"><thead> <tr> <th>ID</th> <th>Fecha</th> <th>Hora</th> <th>Paciente</th> <th>Motivo</th> <th>Estado</th> <th>Acción</th> </tr> </thead> <tbody>`;
 
-    citas.forEach(cita => {
-        const estadoClass = cita.estado === 'PROGRAMADA' ? 'status-pendiente' :
-                           (cita.estado === 'ATENDIDA' ? 'status-surtida' : 'status-cancelada');
+    citasProgramadas.forEach(cita => {
+        // Verificar si la cita ya tiene receta
+        const tieneReceta = cita.receta !== null;
 
-        html += `<tr>
+        html += ` <tr>
             <td>${cita.idCita}</td>
             <td>${cita.fecha}</td>
             <td>${cita.hora}</td>
             <td>${cita.cliente?.nombre || '-'} ${cita.cliente?.apellido || ''}</td>
             <td>${cita.motivo || '-'}</td>
-            <td><span class="${estadoClass}">${cita.estado}</span></td>
-            <td><button class="btn-primary" onclick="crearRecetaDesdeCita(${cita.idCita})">Crear Receta</button></td>
+            <td><span class="status-pendiente">${cita.estado}</span></td>
+            <td>
+                <button class="btn-primary" onclick="crearRecetaDesdeCita(${cita.idCita})" ${tieneReceta ? 'disabled style="opacity:0.5;"' : ''}>
+                    ${tieneReceta ? '✓ Receta Creada' : 'Crear Receta'}
+                </button>
+            </td>
         </tr>`;
     });
 
-    html += `</tbody></table>`;
+    html += `</tbody> </table>`;
     container.innerHTML = html;
+
+    // Actualizar contador de citas programadas
+    document.getElementById('totalCitas').innerText = citasProgramadas.length;
 }
 
 function verDetalleReceta(id) {
@@ -355,7 +418,13 @@ function verDetalleReceta(id) {
 }
 
 function crearRecetaDesdeCita(idCita) {
-    document.getElementById('recetaCitaId').value = idCita;
+    const selectCitas = document.getElementById('recetaCitaId');
+    if (selectCitas) {
+        selectCitas.value = idCita;
+        // Disparar evento change para mostrar información
+        const event = new Event('change');
+        selectCitas.dispatchEvent(event);
+    }
     document.getElementById('recetaDiagnostico').focus();
 }
 
@@ -367,6 +436,7 @@ function mostrarMensaje(elementId, mensaje, tipo) {
         element.innerText = '';
     }, 3000);
 }
+
 // ========== CARGAR CLIENTES PARA CITAS ==========
 async function cargarClientes() {
     try {
@@ -430,38 +500,63 @@ async function crearCita() {
 
         if (response.ok) {
             const cita = await response.json();
-            mostrarMensaje('createCitaMessage', ` Cita creada exitosamente para el ${cita.fecha} a las ${cita.hora}`, 'success');
+            mostrarMensaje('createCitaMessage', `✅ Cita creada exitosamente para el ${cita.fecha} a las ${cita.hora}`, 'success');
+
             // Limpiar formulario
             document.getElementById('citaClienteId').value = '';
             document.getElementById('citaFecha').value = '';
             document.getElementById('citaHora').value = '';
             document.getElementById('citaMotivo').value = '';
+
             // Recargar citas
             await cargarCitas();
         } else {
             const error = await response.json();
-            mostrarMensaje('createCitaMessage', ' ' + error.message, 'error');
+            mostrarMensaje('createCitaMessage', '❌ ' + error.message, 'error');
         }
     } catch (error) {
-        mostrarMensaje('createCitaMessage', ' Error de conexión', 'error');
+        mostrarMensaje('createCitaMessage', '❌ Error de conexión', 'error');
     }
 }
 
-// Actualizar cargarDatosIniciales para incluir clientes
-async function cargarDatosIniciales() {
-    await cargarMedicamentos();
-    await cargarRecetas();
-    await cargarCitas();
-    await cargarClientes();
-
-    // Configurar fecha mínima para el input de fecha
-    const fechaInput = document.getElementById('citaFecha');
-    if (fechaInput) {
-        fechaInput.min = new Date().toISOString().split('T')[0];
+// ========== FUNCIONES DE RENDERIZADO ==========
+function mostrarRecetas(recetas) {
+    const container = document.getElementById('recetasList');
+    if (!recetas || recetas.length === 0) {
+        container.innerHTML = '<p class="text-muted">No tienes recetas registradas</p>';
+        return;
     }
+
+    let html = `<table class="data-table"><thead><tr><th>ID</th><th>Fecha</th><th>Diagnóstico</th><th>Estado</th><th>Total</th><th>Acciones</th></tr></thead><tbody>`;
+
+    recetas.forEach(receta => {
+        const estadoClass = receta.estado === 'PENDIENTE' ? 'status-pendiente' :
+                           (receta.estado === 'SURTIDA' ? 'status-surtida' : 'status-cancelada');
+
+        html += `<tr>
+            <td>${receta.idReceta}</td>
+            <td>${receta.fechaEmision}</td>
+            <td>${receta.diagnostico?.substring(0, 50) || '-'}${receta.diagnostico?.length > 50 ? '...' : ''}</td>
+            <td><span class="${estadoClass}">${receta.estado}</span></td>
+            <td>$${receta.total}</td>
+            <td><button class="btn-secondary" onclick="verDetalleReceta(${receta.idReceta})">Ver Detalle</button></td>
+        </tr>`;
+
+        if (receta.detalles && receta.detalles.length > 0) {
+            html += `<tr id="detalle-${receta.idReceta}" style="display: none;">
+                <td colspan="6"><div class="detalle-receta"><strong>Medicamentos:</strong><table style="margin-top: 10px;"><thead><tr><th>Medicamento</th><th>Cantidad</th><th>Indicaciones</th><th>Subtotal</th></tr></thead><tbody>`;
+            receta.detalles.forEach(d => {
+                html += `<tr><td>${d.medicamentoNombre}</td><td>${d.cantidad}</td><td>${d.indicaciones || '-'}</td><td>$${d.subtotal}</td></tr>`;
+            });
+            html += `</tbody></table></div></td></tr>`;
+        }
+    });
+
+    html += `</tbody></table>`;
+    container.innerHTML = html;
 }
-// Cargar datos al iniciar
+
+// Inicializar
 document.addEventListener('DOMContentLoaded', () => {
     cargarDatosIniciales();
 });
-

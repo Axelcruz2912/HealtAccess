@@ -7,6 +7,7 @@ import axel.utvt.healtaccess.dto.RecetaResponse;
 import axel.utvt.healtaccess.entities.Cita;
 import axel.utvt.healtaccess.entities.Cliente;
 import axel.utvt.healtaccess.entities.Farmacia;
+import axel.utvt.healtaccess.entities.enums.EstadoCita;
 import axel.utvt.healtaccess.repositories.FarmaciaRepository;
 import axel.utvt.healtaccess.services.MedicoService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -98,5 +99,17 @@ public class MedicoController {
     public ResponseEntity<List<Cliente>> listarClientes() {
         return ResponseEntity.ok(medicoService.listarClientes());
     }
+// En MedicoController.java, agregar:
 
+    @PutMapping("/citas/{id}/estado")
+    public ResponseEntity<String> actualizarEstadoCita(
+            @PathVariable Integer id,
+            @RequestParam String estado,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpServletRequest httpRequest) {
+
+        EstadoCita nuevoEstado = EstadoCita.valueOf(estado.toUpperCase());
+        medicoService.actualizarEstadoCita(id, nuevoEstado, userDetails.getIdUsuario(), httpRequest.getRemoteAddr());
+        return ResponseEntity.ok("Estado de cita actualizado");
+    }
 }

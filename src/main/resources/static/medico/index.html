@@ -11,7 +11,7 @@
 <div id="dashboard">
     <div class="dashboard-header">
         <div class="logo">
-            <h2> Sistema Farmacia - Médico</h2>
+            <h2>🏥 Sistema Farmacia - Médico</h2>
         </div>
         <div class="user-info">
             <div class="user-details">
@@ -30,11 +30,11 @@
                 <p id="totalRecetas" style="font-size: 32px; font-weight: bold;">0</p>
             </div>
             <div class="card" style="text-align: center;">
-                <h3> Mis Citas</h3>
+                <h3>📅 Mis Citas</h3>
                 <p id="totalCitas" style="font-size: 32px; font-weight: bold;">0</p>
             </div>
             <div class="card" style="text-align: center;">
-                <h3> Pacientes Atendidos</h3>
+                <h3>👥 Pacientes Atendidos</h3>
                 <p id="totalPacientes" style="font-size: 32px; font-weight: bold;">0</p>
             </div>
         </div>
@@ -42,7 +42,7 @@
         <!-- Mis Recetas -->
         <div class="card">
             <div class="card-header">
-                <h3>Mis Recetas</h3>
+                <h3>📋 Mis Recetas</h3>
                 <button class="btn-refresh" onclick="cargarRecetas()">⟳</button>
             </div>
             <div id="recetasList" class="table-container">
@@ -53,7 +53,7 @@
         <!-- Mis Citas -->
         <div class="card">
             <div class="card-header">
-                <h3> Mis Citas</h3>
+                <h3>📅 Mis Citas</h3>
                 <button class="btn-refresh" onclick="cargarCitas()">⟳</button>
             </div>
             <div id="citasList" class="table-container">
@@ -64,19 +64,22 @@
         <!-- Crear Nueva Receta -->
         <div class="card">
             <div class="card-header">
-                <h3> Crear Nueva Receta</h3>
+                <h3>✍️ Crear Nueva Receta</h3>
             </div>
             <div class="form-group">
-                <label> ID de la Cita</label>
-                <input type="number" id="recetaCitaId" placeholder="Ej: 1">
+                <label>📅 Seleccione una Cita</label>
+                <select id="recetaCitaId" class="citas-select">
+                    <option value="">-- Seleccione una cita --</option>
+                </select>
+                <div id="infoCitaSeleccionada" class="cita-info" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px;"></div>
             </div>
             <div class="form-group">
-                <label> Diagnóstico</label>
+                <label>📝 Diagnóstico</label>
                 <textarea id="recetaDiagnostico" rows="3" placeholder="Describe el diagnóstico..."></textarea>
             </div>
             <div class="form-group">
-                <label>Medicamentos</label>
-                <div id="medicamentosLista"></div>
+                <label>💊 Medicamentos</label>
+                <div id="medicamentosLista" class="medicamentos-lista"></div>
                 <div class="add-medicamento-row">
                     <select id="selectMedicamento" class="medicamento-select">
                         <option value="">-- Seleccione un medicamento --</option>
@@ -94,24 +97,24 @@
         <!-- Crear Nueva Cita -->
         <div class="card">
             <div class="card-header">
-                <h3> Crear Nueva Cita</h3>
+                <h3>📅 Crear Nueva Cita</h3>
             </div>
             <div class="form-group">
-                <label> Cliente (Paciente)</label>
+                <label>👤 Cliente (Paciente)</label>
                 <select id="citaClienteId" class="cliente-select">
                     <option value="">-- Seleccione un paciente --</option>
                 </select>
             </div>
             <div class="form-group">
-                <label> Fecha</label>
+                <label>📅 Fecha</label>
                 <input type="date" id="citaFecha" min="">
             </div>
             <div class="form-group">
-                <label> Hora</label>
+                <label>⏰ Hora</label>
                 <input type="time" id="citaHora">
             </div>
             <div class="form-group">
-                <label> Motivo de la consulta</label>
+                <label>📝 Motivo de la consulta</label>
                 <textarea id="citaMotivo" rows="2" placeholder="Describa el motivo de la consulta..."></textarea>
             </div>
             <button class="btn-primary" onclick="crearCita()">Crear Cita</button>
@@ -119,7 +122,6 @@
         </div>
     </div>
 </div>
-
 <script src="/js/auth.js"></script>
 <script src="/js/medico.js"></script>
 </body>

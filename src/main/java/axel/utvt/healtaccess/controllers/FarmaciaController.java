@@ -1,6 +1,6 @@
 package axel.utvt.healtaccess.controllers;
 
-import axel.utvt.healtaccess.config.CustomUserDetails;  // <-- AGREGAR ESTE IMPORT
+import axel.utvt.healtaccess.config.CustomUserDetails;
 import axel.utvt.healtaccess.dto.DispensarRequest;
 import axel.utvt.healtaccess.dto.RecetaResponse;
 import axel.utvt.healtaccess.entities.Inventario;
@@ -71,5 +71,28 @@ public class FarmaciaController {
 
         List<Inventario> stockBajo = inventarioService.obtenerStockBajoPorUsuario(userDetails.getIdUsuario());
         return ResponseEntity.ok(stockBajo);
+    }
+
+    // ========== NUEVO ENDPOINT: HISTORIAL DE RECETAS DISPENSADAS ==========
+    @GetMapping("/recetas")
+    public ResponseEntity<List<RecetaResponse>> obtenerRecetasPorEstado(
+            @RequestParam(required = false) String estado,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        List<Receta> recetas;
+
+        if (estado != null && estado.equals("SURTIDA")) {
+            // Obtener recetas dispensadas (surtidas) de esta farmacia
+            recetas = farmaciaService.obtenerRecetasDispensadas(userDetails.getIdUsuario());
+        } else {
+            // Obtener todas las recetas de la farmacia
+            recetas = farmaciaService.obtenerTodasRecetas(userDetails.getIdUsuario());
+        }
+
+        List<RecetaResponse> responses = recetas.stream()
+                .map(receta -> recetaService.obtenerRecetaPorId(receta.getIdReceta()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responses);
     }
 }

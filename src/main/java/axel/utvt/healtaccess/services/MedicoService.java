@@ -51,7 +51,6 @@ public class MedicoService {
         Farmacia farmacia = farmaciaRepository.findAll().stream().findFirst()
                 .orElseThrow(() -> new RuntimeException("No hay farmacia registrada en el sistema"));
 
-        // Asignar la farmacia al request
         request.setIdFarmacia(farmacia.getIdFarmacia());
 
         // Validar disponibilidad de stock para cada medicamento
@@ -64,11 +63,16 @@ public class MedicoService {
 
         RecetaResponse response = recetaService.crearReceta(request, doctor.getIdDoctor());
 
+        // ========== CAMBIAR ESTADO DE LA CITA A ATENDIDA ==========
+        cita.setEstado(EstadoCita.ATENDIDA);
+        citaRepository.save(cita);
+        // =========================================================
+
         auditoriaService.registrarAccionExitosa(
                 doctor.getUsuario().getCorreo(),
                 "MEDICO",
                 "CREAR_RECETA",
-                "Receta creada ID: " + response.getIdReceta(),
+                "Receta creada ID: " + response.getIdReceta() + " - Cita ID: " + cita.getIdCita() + " marcada como ATENDIDA",
                 ip
         );
 
@@ -228,6 +232,31 @@ public class MedicoService {
                 "MEDICO",
                 "CANCELAR_CITA",
                 "Cita cancelada ID: " + idCita,
+                ip
+        );
+    }
+    // En MedicoService.java, agregar este método:
+
+    @Transactional
+    public void actualizarEstadoCita(Integer idCita, EstadoCita nuevoEstado, Integer idUsuario, String ip) {
+        Doctor doctor = doctorRepository.findByUsuario_IdUsuario(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Doctor no encontrado"));
+
+        Cita cita = citaRepository.findById(idCita)
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+        if (!cita.getDoctor().getIdDoctor().equals(doctor.getIdDoctor())) {
+            throw new RuntimeException("No puedes modificar citas de otros médicos");
+        }
+
+        cita.setEstado(nuevoEstado);
+        citaRepository.save(cita);
+
+        auditoriaService.registrarAccionExitosa(
+                doctor.getUsuario().getCorreo(),
+                "MEDICO",
+                "ACTUALIZAR_ESTADO_CITA",
+                "Cita ID: " + idCita + " cambiada a " + nuevoEstado.name(),
                 ip
         );
     }

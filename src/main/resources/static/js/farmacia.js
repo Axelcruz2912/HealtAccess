@@ -100,7 +100,9 @@ async function cargarRecetasDispensadas() {
             document.getElementById('totalDispensadas').innerText = recetas.length;
         } else {
             console.error('Error al cargar recetas dispensadas');
-            document.getElementById('recetasDispensadasList').innerHTML = '<p class="error">Error al cargar historial</p>';
+            const error = await response.json();
+            console.error('Error:', error);
+            document.getElementById('recetasDispensadasList').innerHTML = '<p class="error">Error al cargar historial: ' + (error.message || '') + '</p>';
         }
     } catch (error) {
         console.error('Error de conexión:', error);
