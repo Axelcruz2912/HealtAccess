@@ -693,3 +693,17 @@ tr:hover {
     cursor: pointer;
     font-size: 16px;
 }
+.stock-normal {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.stock-bajo {
+    color: #f39c12;
+    font-weight: 500;
+}
+
+.stock-critico {
+    color: #ff4757;
+    font-weight: bold;
+}

@@ -37,8 +37,7 @@ public class Cita {
     @Column(columnDefinition = "TEXT")
     private String observaciones;
 
-    @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)  // Cambiar a EAGER para cargar siempre el cliente
     @JoinColumn(name = "id_cliente", nullable = false)
     private Cliente cliente;
 

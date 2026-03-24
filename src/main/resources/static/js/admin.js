@@ -6,6 +6,8 @@ async function cargarDatosIniciales() {
     await cargarClientes();
     await cargarMedicamentos();
     await cargarRecetas();
+    await cargarInventario();
+
 }
 
 // Cargar usuarios
@@ -135,21 +137,52 @@ function mostrarClientes(clientes) {
     document.getElementById('clientesList').innerHTML = html || '<p class="text-muted">No hay clientes</p>';
 }
 
-// Mostrar medicamentos
 function mostrarMedicamentos(medicamentos) {
-    let html = `<table><thead><tr><th>ID</th><th>Nombre</th><th>Descripción</th><th>Precio</th><th>Requiere Receta</th><th>Acción</th></tr></thead><tbody>`;
+    const container = document.getElementById('medicamentosList');
+    if (!medicamentos || medicamentos.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay medicamentos</p>';
+        return;
+    }
+
+    let html = `<table class="data-table">
+        <thead>
+            <tr><th>ID</th><th>Nombre</th><th>Descripción</th><th>Precio</th><th>Receta</th><th>Stock</th><th>Acción</th>\
+        </thead>
+        <tbody>`;
+
     medicamentos.forEach(m => {
-        html += `<tr>
+        const stock = m.stock !== undefined ? m.stock : (window.inventarioGlobal ? window.inventarioGlobal[m.idMedicamento] : '?');
+        const stockClass = stock <= 5 ? 'stock-critico' : (stock <= 10 ? 'stock-bajo' : 'stock-normal');
+
+        html += `  <tr>
             <td>${m.idMedicamento}</td>
-            <td>${m.nombre}</td>
+            <td><strong>${m.nombre}</strong></td>
             <td>${m.descripcion || '-'}</td>
             <td>$${m.precio}</td>
             <td>${m.requiereReceta ? 'Sí' : 'No'}</td>
+            <td><span class="${stockClass}">${stock !== undefined ? stock + ' unidades' : 'Cargando...'}</span></td>
             <td><button class="btn-danger" onclick="eliminarMedicamento(${m.idMedicamento})">Eliminar</button></td>
         </tr>`;
     });
+
     html += `</tbody></table>`;
-    document.getElementById('medicamentosList').innerHTML = html || '<p class="text-muted">No hay medicamentos</p>';
+    container.innerHTML = html;
+}
+async function cargarInventario() {
+    try {
+        const response = await fetch('/api/farmacia/inventario', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+            const inventario = await response.json();
+            window.inventarioGlobal = {};
+            inventario.forEach(item => {
+                window.inventarioGlobal[item.medicamento?.idMedicamento || item.id?.idMedicamento] = item.stock;
+            });
+        }
+    } catch (error) {
+        console.error('Error al cargar inventario:', error);
+    }
 }
 
 // Mostrar recetas
@@ -237,34 +270,47 @@ async function crearUsuario() {
 }
 
 // Crear medicamento
+// Crear medicamento con stock
 async function crearMedicamento() {
     const nombre = document.getElementById('medNombre').value;
     const descripcion = document.getElementById('medDescripcion').value;
     const precio = parseFloat(document.getElementById('medPrecio').value);
     const requiereReceta = document.getElementById('medRequiereReceta').value === 'true';
+    const stockInicial = parseInt(document.getElementById('medStockInicial').value) || 100;
 
-    const response = await fetch('/api/admin/medicamentos', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ nombre, descripcion, precio, requiereReceta })
-    });
-
-    if (response.ok) {
-        document.getElementById('createMedMessage').innerText = ' Medicamento creado exitosamente';
-        setTimeout(() => document.getElementById('createMedMessage').innerText = '', 3000);
-        await cargarMedicamentos();
-        limpiarFormularioMedicamento();
-    } else {
-        const error = await response.json();
-        document.getElementById('createMedMessage').innerText = ' ' + error.message;
+    if (!nombre || !precio) {
+        document.getElementById('createMedMessage').innerText = '❌ Complete nombre y precio';
         document.getElementById('createMedMessage').style.color = '#ff4757';
-        setTimeout(() => {
-            document.getElementById('createMedMessage').innerText = '';
+        setTimeout(() => document.getElementById('createMedMessage').innerText = '', 3000);
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/admin/medicamentos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ nombre, descripcion, precio, requiereReceta, stockInicial })
+        });
+
+        if (response.ok) {
+            document.getElementById('createMedMessage').innerText = ` Medicamento creado con ${stockInicial} unidades`;
             document.getElementById('createMedMessage').style.color = '#28a745';
-        }, 3000);
+            setTimeout(() => document.getElementById('createMedMessage').innerText = '', 3000);
+            await cargarMedicamentos();
+            limpiarFormularioMedicamento();
+        } else {
+            const error = await response.json();
+            document.getElementById('createMedMessage').innerText = ' ' + error.message;
+            document.getElementById('createMedMessage').style.color = '#ff4757';
+            setTimeout(() => document.getElementById('createMedMessage').innerText = '', 3000);
+        }
+    } catch (error) {
+        document.getElementById('createMedMessage').innerText = ' Error de conexión';
+        document.getElementById('createMedMessage').style.color = '#ff4757';
+        setTimeout(() => document.getElementById('createMedMessage').innerText = '', 3000);
     }
 }
 

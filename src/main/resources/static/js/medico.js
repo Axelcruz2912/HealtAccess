@@ -277,18 +277,30 @@ async function cargarCitas() {
 
         if (response.ok) {
             const citas = await response.json();
-            citasGlobal = citas;
-            mostrarCitas(citas);
 
-            // Actualizar contadores
-            const citasProgramadas = citas.filter(c => c.estado === 'PROGRAMADA');
-            document.getElementById('totalCitas').innerText = citasProgramadas.length;
+            // Si los clientes no vienen, hacer una segunda llamada para obtenerlos
+            if (citas.length > 0 && !citas[0].cliente) {
+                const clientesResponse = await fetch('/api/medico/clientes', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (clientesResponse.ok) {
+                    const clientes = await clientesResponse.json();
+                    const clientesMap = {};
+                    clientes.forEach(c => clientesMap[c.idCliente] = c);
+
+                    citas.forEach(cita => {
+                        if (cita.idCliente && clientesMap[cita.idCliente]) {
+                            cita.cliente = clientesMap[cita.idCliente];
+                        }
+                    });
+                }
+            }
+
+            mostrarCitas(citas);
+            document.getElementById('totalCitas').innerText = citas.filter(c => c.estado === 'PROGRAMADA').length;
 
             const pacientesUnicos = [...new Set(citas.map(c => c.cliente?.idCliente))];
             document.getElementById('totalPacientes').innerText = pacientesUnicos.length;
-
-            // Recargar select de citas si existe
-            cargarCitasEnSelect();
         } else {
             document.getElementById('citasList').innerHTML = '<p class="error">Error al cargar citas</p>';
         }
