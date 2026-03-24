@@ -707,3 +707,115 @@ tr:hover {
     color: #ff4757;
     font-weight: bold;
 }
+.stock-normal {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.stock-bajo {
+    color: #f39c12;
+    font-weight: 500;
+}
+
+.stock-critico {
+    color: #ff4757;
+    font-weight: bold;
+}
+
+.error {
+    color: #ff4757;
+    background: #f8d7da;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.text-muted {
+    color: #999;
+    text-align: center;
+    padding: 20px;
+}
+/* Auditoría filtros */
+.auditoria-filtros {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filtro-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 200px;
+}
+
+.filtro-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+}
+
+/* Badges para acciones */
+.accion-login {
+    background: #28a745;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.accion-login-fallido {
+    background: #dc3545;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.accion-crear-receta {
+    background: #667eea;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.accion-dispensar-receta {
+    background: #f39c12;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.accion-crear-cita {
+    background: #1abc9c;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.accion-other {
+    background: #6c757d;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}

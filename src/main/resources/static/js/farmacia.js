@@ -108,7 +108,7 @@ async function cargarRecetasDispensadas() {
         console.error('Error de conexión:', error);
         document.getElementById('recetasDispensadasList').innerHTML = '<p class="error">Error de conexión</p>';
     }
-}
+
 
 // ========== MOSTRAR RECETAS PENDIENTES ==========
 function mostrarRecetasPendientes(recetas) {

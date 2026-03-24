@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import axel.utvt.healtaccess.entities.Inventario;
+import axel.utvt.healtaccess.entities.InventarioId;
 
 import java.util.List;
 
@@ -27,7 +29,8 @@ public class AdminController {
     private final RecetaRepository recetaRepository;
     private final ClienteRepository clienteRepository;
     private final PasswordEncoder passwordEncoder;
-    private final InventarioRepository inventarioRepository; // <-- AGREGAR ESTO
+    private final InventarioRepository inventarioRepository;
+    private final AuditoriaRepository auditoriaRepository;
 
     // ========== USUARIOS ==========
 
@@ -38,10 +41,12 @@ public class AdminController {
 
     @PostMapping("/usuarios")
     public ResponseEntity<Usuario> crearUsuario(@Valid @RequestBody UsuarioRequest request) {
+        // Verificar si el correo ya existe
         if (usuarioRepository.existsByCorreo(request.getCorreo())) {
             throw new RuntimeException("El correo ya está registrado");
         }
 
+        // Crear nuevo usuario
         Usuario usuario = new Usuario();
         usuario.setNombre(request.getNombre());
         usuario.setApellido(request.getApellido());
@@ -53,17 +58,21 @@ public class AdminController {
 
         Usuario savedUsuario = usuarioRepository.save(usuario);
 
-        if (request.getRol().name().equals("MEDICO") && request.getEspecialidad() != null) {
+        // Si el rol es MEDICO, crear registro en Doctor
+        if (request.getRol().name().equals("MEDICO")) {
             Doctor doctor = new Doctor();
             doctor.setUsuario(savedUsuario);
+            doctor.setNombre(request.getNombre());
+            doctor.setApellido(request.getApellido());
+            doctor.setCorreo(request.getCorreo());  // <-- AGREGAR CORREO
             doctor.setEspecialidad(request.getEspecialidad());
             doctor.setCedulaProfesional(request.getCedulaProfesional());
-            doctor.setAniosExperiencia(request.getAniosExperiencia());
+            doctor.setAniosExperiencia(request.getAniosExperiencia() != null ? request.getAniosExperiencia() : 0);
             doctor.setTelefono(request.getTelefono());
             doctorRepository.save(doctor);
         }
 
-        if (request.getRol().name().equals("FARMACIA") && request.getNombreFarmacia() != null) {
+        if (request.getRol().name().equals("FARMACIA")) {
             Farmacia farmacia = new Farmacia();
             farmacia.setUsuario(savedUsuario);
             farmacia.setNombre(request.getNombreFarmacia());
@@ -75,7 +84,6 @@ public class AdminController {
 
         return ResponseEntity.ok(savedUsuario);
     }
-
     @PutMapping("/usuarios/{id}/estado")
     public ResponseEntity<String> cambiarEstadoUsuario(
             @PathVariable Integer id,
@@ -125,12 +133,9 @@ public class AdminController {
 
         Medicamento savedMedicamento = medicamentoRepository.save(medicamento);
 
-        // ========== CREAR INVENTARIO AUTOMÁTICAMENTE ==========
-        // Obtener la primera farmacia (la única que existe)
         Farmacia farmacia = farmaciaRepository.findAll().stream().findFirst()
                 .orElseThrow(() -> new RuntimeException("No hay farmacia registrada en el sistema"));
 
-        // Crear inventario para el nuevo medicamento con stock inicial
         Inventario inventario = new Inventario();
         InventarioId inventarioId = new InventarioId();
         inventarioId.setIdFarmacia(farmacia.getIdFarmacia());
@@ -138,15 +143,15 @@ public class AdminController {
         inventario.setId(inventarioId);
         inventario.setFarmacia(farmacia);
         inventario.setMedicamento(savedMedicamento);
-        inventario.setStock(100); // Stock inicial por defecto
+
+        int stockInicial = request.getStockInicial() != null ? request.getStockInicial() : 100;
+        inventario.setStock(stockInicial);
         inventario.setStockMinimo(10);
 
         inventarioRepository.save(inventario);
-        // ===================================================
 
         return ResponseEntity.ok(savedMedicamento);
     }
-
     @PutMapping("/medicamentos/{id}")
     public ResponseEntity<Medicamento> actualizarMedicamento(
             @PathVariable Integer id,
@@ -166,24 +171,24 @@ public class AdminController {
     public ResponseEntity<String> eliminarMedicamento(@PathVariable Integer id) {
         Medicamento medicamento = medicamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Medicamento no encontrado"));
-        medicamento.setActivo(false);
-        medicamentoRepository.save(medicamento);
 
-        // Opcional: también desactivar el inventario
+        // Opción 1: Eliminar físicamente
+        medicamentoRepository.delete(medicamento);
+
+
+        // También eliminar el inventario asociado
         Farmacia farmacia = farmaciaRepository.findAll().stream().findFirst().orElse(null);
         if (farmacia != null) {
             InventarioId inventarioId = new InventarioId();
             inventarioId.setIdFarmacia(farmacia.getIdFarmacia());
             inventarioId.setIdMedicamento(id);
-            inventarioRepository.findById(inventarioId).ifPresent(inv -> {
-                inv.setStock(0);
-                inventarioRepository.save(inv);
+            inventarioRepository.findById(inventarioId).ifPresent(inventario -> {
+                inventarioRepository.delete(inventario);
             });
         }
 
-        return ResponseEntity.ok("Medicamento desactivado");
+        return ResponseEntity.ok("Medicamento eliminado correctamente");
     }
-
     // ========== RECETAS ==========
     @GetMapping("/recetas")
     public ResponseEntity<List<Receta>> listarTodasRecetas() {
@@ -194,5 +199,24 @@ public class AdminController {
     @GetMapping("/reportes/recetas-por-estado")
     public ResponseEntity<?> reporteRecetasPorEstado() {
         return ResponseEntity.ok("Reporte generado");
+    }
+
+    // ========== AUDITORÍA ==========
+    @GetMapping("/auditoria")
+    public ResponseEntity<List<Auditoria>> obtenerAuditoria() {
+        List<Auditoria> auditoria = auditoriaRepository.findAllByOrderByFechaDesc();
+        return ResponseEntity.ok(auditoria);
+    }
+
+    @GetMapping("/auditoria/usuario/{correo}")
+    public ResponseEntity<List<Auditoria>> obtenerAuditoriaPorUsuario(@PathVariable String correo) {
+        List<Auditoria> auditoria = auditoriaRepository.findByUsuarioCorreoOrderByFechaDesc(correo);
+        return ResponseEntity.ok(auditoria);
+    }
+
+    @GetMapping("/auditoria/accion/{accion}")
+    public ResponseEntity<List<Auditoria>> obtenerAuditoriaPorAccion(@PathVariable String accion) {
+        List<Auditoria> auditoria = auditoriaRepository.findByAccionOrderByFechaDesc(accion);
+        return ResponseEntity.ok(auditoria);
     }
 }

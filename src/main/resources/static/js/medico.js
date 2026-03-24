@@ -1,5 +1,5 @@
 let medicamentosGlobal = [];
-let citasGlobal = []; // Almacenar citas globalmente
+let citasGlobal = [];
 
 // Cargar datos iniciales
 async function cargarDatosIniciales() {
@@ -66,7 +66,6 @@ async function cargarCitasEnSelect() {
                 select.appendChild(option);
             });
 
-            // Agregar evento para mostrar información de la cita seleccionada
             select.onchange = function() {
                 const selectedOption = this.options[this.selectedIndex];
                 const infoCita = document.getElementById('infoCitaSeleccionada');
@@ -165,9 +164,9 @@ function cargarSelectMedicamentos() {
 
         if (stockInfo) {
             if (medicamentoId && stock > 0) {
-                stockInfo.innerHTML = `<span class="success-message">✅ Stock disponible: ${stock} unidades</span>`;
+                stockInfo.innerHTML = `<span class="success-message"> Stock disponible: ${stock} unidades</span>`;
             } else if (medicamentoId && stock <= 0) {
-                stockInfo.innerHTML = `<span class="error">❌ Medicamento sin stock disponible</span>`;
+                stockInfo.innerHTML = `<span class="error"> Medicamento sin stock disponible</span>`;
             } else {
                 stockInfo.innerHTML = '';
             }
@@ -360,7 +359,7 @@ async function crearReceta() {
         });
 
         if (response.ok) {
-            mostrarMensaje('createRecetaMessage', '✅ Receta creada exitosamente', 'success');
+            mostrarMensaje('createRecetaMessage', ' Receta creada exitosamente', 'success');
 
             // Limpiar formulario
             if (idCitaSelect) idCitaSelect.value = '';
@@ -370,16 +369,16 @@ async function crearReceta() {
             // Recargar datos
             await cargarRecetas();
             await cargarMedicamentos();
-            await cargarCitas(); // Esto actualizará las citas y eliminará la usada
+            await cargarCitas();
 
             // Mostrar mensaje adicional
-            mostrarMensaje('createRecetaMessage', '✅ Receta creada. La cita ya no estará disponible para nuevas recetas', 'success');
+            mostrarMensaje('createRecetaMessage', ' Receta creada. La cita ya no estará disponible para nuevas recetas', 'success');
         } else {
             const error = await response.json();
-            mostrarMensaje('createRecetaMessage', '❌ ' + error.message, 'error');
+            mostrarMensaje('createRecetaMessage', ' ' + error.message, 'error');
         }
     } catch (error) {
-        mostrarMensaje('createRecetaMessage', '❌ Error de conexión', 'error');
+        mostrarMensaje('createRecetaMessage', ' Error de conexión', 'error');
     }
 }
 
@@ -512,7 +511,7 @@ async function crearCita() {
 
         if (response.ok) {
             const cita = await response.json();
-            mostrarMensaje('createCitaMessage', `✅ Cita creada exitosamente para el ${cita.fecha} a las ${cita.hora}`, 'success');
+            mostrarMensaje('createCitaMessage', ` Cita creada exitosamente para el ${cita.fecha} a las ${cita.hora}`, 'success');
 
             // Limpiar formulario
             document.getElementById('citaClienteId').value = '';
@@ -524,10 +523,10 @@ async function crearCita() {
             await cargarCitas();
         } else {
             const error = await response.json();
-            mostrarMensaje('createCitaMessage', '❌ ' + error.message, 'error');
+            mostrarMensaje('createCitaMessage', ' ' + error.message, 'error');
         }
     } catch (error) {
-        mostrarMensaje('createCitaMessage', '❌ Error de conexión', 'error');
+        mostrarMensaje('createCitaMessage', ' Error de conexión', 'error');
     }
 }
 

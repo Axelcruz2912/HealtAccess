@@ -87,7 +87,6 @@ public class FarmaciaService {
         return recetaRepository.findByEstadoAndFarmacia_IdFarmacia(EstadoReceta.PENDIENTE, farmacia.getIdFarmacia());
     }
 
-    // ========== NUEVO MÉTODO: Obtener recetas dispensadas ==========
     public List<Receta> obtenerRecetasDispensadas(Integer idUsuario) {
         Farmacia farmacia = farmaciaRepository.findByUsuario_IdUsuario(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Farmacia no encontrada"));
@@ -95,7 +94,6 @@ public class FarmaciaService {
         return recetaRepository.findByEstadoAndFarmacia_IdFarmacia(EstadoReceta.SURTIDA, farmacia.getIdFarmacia());
     }
 
-    // ========== NUEVO MÉTODO: Obtener todas las recetas ==========
     public List<Receta> obtenerTodasRecetas(Integer idUsuario) {
         Farmacia farmacia = farmaciaRepository.findByUsuario_IdUsuario(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Farmacia no encontrada"));

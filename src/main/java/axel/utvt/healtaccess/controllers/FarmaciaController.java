@@ -73,7 +73,6 @@ public class FarmaciaController {
         return ResponseEntity.ok(stockBajo);
     }
 
-    // ========== NUEVO ENDPOINT: HISTORIAL DE RECETAS DISPENSADAS ==========
     @GetMapping("/recetas")
     public ResponseEntity<List<RecetaResponse>> obtenerRecetasPorEstado(
             @RequestParam(required = false) String estado,

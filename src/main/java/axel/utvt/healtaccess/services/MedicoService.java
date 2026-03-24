@@ -47,7 +47,6 @@ public class MedicoService {
             throw new RuntimeException("Ya existe una receta para esta cita");
         }
 
-        // OBTENER LA FARMACIA AUTOMÁTICAMENTE (la única que existe)
         Farmacia farmacia = farmaciaRepository.findAll().stream().findFirst()
                 .orElseThrow(() -> new RuntimeException("No hay farmacia registrada en el sistema"));
 
@@ -235,7 +234,6 @@ public class MedicoService {
                 ip
         );
     }
-    // En MedicoService.java, agregar este método:
 
     @Transactional
     public void actualizarEstadoCita(Integer idCita, EstadoCita nuevoEstado, Integer idUsuario, String ip) {

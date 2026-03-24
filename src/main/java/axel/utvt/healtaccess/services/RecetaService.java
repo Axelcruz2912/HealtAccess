@@ -71,7 +71,6 @@ public class RecetaService {
 
             recetaDetalleRepository.save(detalle);
 
-            // Agregar el detalle a la lista de la receta
             savedReceta.getDetalles().add(detalle);
         }
 

@@ -22,6 +22,15 @@ public class Doctor {
     @Column(name = "id_doctor")
     private Integer idDoctor;
 
+    @Column(nullable = false, length = 100)
+    private String nombre;
+
+    @Column(nullable = false, length = 100)
+    private String apellido;
+
+    @Column(nullable = false, unique = true, length = 150)
+    private String correo;  // <-- NUEVO CAMPO
+
     @JsonIgnore
     @OneToOne
     @JoinColumn(name = "id_usuario", nullable = false, unique = true)

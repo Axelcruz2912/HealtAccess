@@ -99,7 +99,6 @@ public class MedicoController {
     public ResponseEntity<List<Cliente>> listarClientes() {
         return ResponseEntity.ok(medicoService.listarClientes());
     }
-// En MedicoController.java, agregar:
 
     @PutMapping("/citas/{id}/estado")
     public ResponseEntity<String> actualizarEstadoCita(

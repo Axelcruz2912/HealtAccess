@@ -19,4 +19,6 @@ public class MedicamentoRequest {
     private BigDecimal precio;
 
     private Boolean requiereReceta = true;
+
+    private Integer stockInicial;
 }

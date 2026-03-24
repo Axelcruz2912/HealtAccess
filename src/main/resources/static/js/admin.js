@@ -7,6 +7,8 @@ async function cargarDatosIniciales() {
     await cargarMedicamentos();
     await cargarRecetas();
     await cargarInventario();
+    await cargarAuditoria();
+
 
 }
 
@@ -47,6 +49,8 @@ async function cargarClientes() {
     const clientes = await response.json();
     mostrarClientes(clientes);
 }
+
+
 
 // Cargar medicamentos
 async function cargarMedicamentos() {
@@ -91,20 +95,46 @@ function mostrarUsuarios(usuarios) {
 
 // Mostrar doctores
 function mostrarDoctores(doctores) {
-    let html = `<table><thead><tr><th>ID</th><th>Nombre</th><th>Especialidad</th><th>Cédula</th><th>Teléfono</th></tr></thead><tbody>`;
+    const container = document.getElementById('doctoresList');
+    if (!doctores || doctores.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay doctores</p>';
+        return;
+    }
+
+    let html = `<table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre Completo</th>
+                <th>Correo</th>
+                <th>Especialidad</th>
+                <th>Cédula</th>
+                <th>Teléfono</th>
+            \\
+        </thead>
+        <tbody>`;
+
     doctores.forEach(d => {
-        html += `<tr>
+        // Ahora el correo está directamente en Doctor
+        const nombreCompleto = `${d.nombre || ''} ${d.apellido || ''}`.trim() || 'Sin nombre';
+        const correo = d.correo || 'Sin correo';
+        const especialidad = d.especialidad || '-';
+        const cedula = d.cedulaProfesional || '-';
+        const telefono = d.telefono || '-';
+
+        html += `     <tr>
             <td>${d.idDoctor}</td>
-            <td>${d.usuario?.nombre || '-'} ${d.usuario?.apellido || '-'}</td>
-            <td>${d.especialidad}</td>
-            <td>${d.cedulaProfesional}</td>
-            <td>${d.telefono || '-'}</td>
+            <td><strong>${nombreCompleto}</strong></td>
+            <td>${correo}</td>
+            <td>${especialidad}</td>
+            <td>${cedula}</td>
+            <td>${telefono}</td>
         </tr>`;
     });
-    html += `</tbody></table>`;
-    document.getElementById('doctoresList').innerHTML = html || '<p class="text-muted">No hay doctores</p>';
-}
 
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+}
 // Mostrar farmacias
 function mostrarFarmacias(farmacias) {
     let html = `<table><thead><tr><th>ID</th><th>Nombre</th><th>Dirección</th><th>Teléfono</th><th>Horario</th></tr></thead><tbody>`;
@@ -137,6 +167,7 @@ function mostrarClientes(clientes) {
     document.getElementById('clientesList').innerHTML = html || '<p class="text-muted">No hay clientes</p>';
 }
 
+// Mostrar medicamentos (sin stock)
 function mostrarMedicamentos(medicamentos) {
     const container = document.getElementById('medicamentosList');
     if (!medicamentos || medicamentos.length === 0) {
@@ -146,60 +177,30 @@ function mostrarMedicamentos(medicamentos) {
 
     let html = `<table class="data-table">
         <thead>
-            <tr><th>ID</th><th>Nombre</th><th>Descripción</th><th>Precio</th><th>Receta</th><th>Stock</th><th>Acción</th>\
-        </thead>
+
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Requiere Receta</th>
+                <th>Acción</th>
+            </thead>
         <tbody>`;
 
     medicamentos.forEach(m => {
-        const stock = m.stock !== undefined ? m.stock : (window.inventarioGlobal ? window.inventarioGlobal[m.idMedicamento] : '?');
-        const stockClass = stock <= 5 ? 'stock-critico' : (stock <= 10 ? 'stock-bajo' : 'stock-normal');
-
-        html += `  <tr>
-            <td>${m.idMedicamento}</td>
-            <td><strong>${m.nombre}</strong></td>
-            <td>${m.descripcion || '-'}</td>
-            <td>$${m.precio}</td>
-            <td>${m.requiereReceta ? 'Sí' : 'No'}</td>
-            <td><span class="${stockClass}">${stock !== undefined ? stock + ' unidades' : 'Cargando...'}</span></td>
-            <td><button class="btn-danger" onclick="eliminarMedicamento(${m.idMedicamento})">Eliminar</button></td>
-        </tr>`;
+        html += `         <tr>
+             <td>${m.idMedicamento}</td>
+             <td><strong>${m.nombre}</strong></td>
+             <td>${m.descripcion || '-'}</td>
+             <td>$${m.precio}</td>
+             <td>${m.requiereReceta ? 'Sí' : 'No'}</td>
+             <td><button class="btn-danger" onclick="eliminarMedicamento(${m.idMedicamento})">Eliminar</button></td>
+         </tr>`;
     });
 
-    html += `</tbody></table>`;
+    html += `</tbody>
+     </table>`;
     container.innerHTML = html;
-}
-async function cargarInventario() {
-    try {
-        const response = await fetch('/api/farmacia/inventario', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (response.ok) {
-            const inventario = await response.json();
-            window.inventarioGlobal = {};
-            inventario.forEach(item => {
-                window.inventarioGlobal[item.medicamento?.idMedicamento || item.id?.idMedicamento] = item.stock;
-            });
-        }
-    } catch (error) {
-        console.error('Error al cargar inventario:', error);
-    }
-}
-
-// Mostrar recetas
-function mostrarRecetas(recetas) {
-    let html = `<table><thead><tr><th>ID</th><th>Fecha</th><th>Diagnóstico</th><th>Estado</th><th>Total</th></tr></thead><tbody>`;
-    recetas.forEach(r => {
-        const estadoClass = r.estado === 'PENDIENTE' ? 'status-pendiente' : (r.estado === 'SURTIDA' ? 'status-surtida' : 'status-cancelada');
-        html += `<tr>
-            <td>${r.idReceta}</td>
-            <td>${r.fechaEmision}</td>
-            <td>${r.diagnostico.substring(0, 50)}${r.diagnostico.length > 50 ? '...' : ''}</td>
-            <td><span class="${estadoClass}">${r.estado}</span></td>
-            <td>$${r.total}</td>
-        </tr>`;
-    });
-    html += `</tbody></table>`;
-    document.getElementById('recetasList').innerHTML = html || '<p class="text-muted">No hay recetas</p>';
 }
 
 // Cambiar estado de usuario
@@ -228,49 +229,103 @@ async function crearUsuario() {
     const password = document.getElementById('newPassword').value;
     const rol = document.getElementById('newRol').value;
 
-    const usuarioData = { nombre, apellido, correo, password, rol };
-
-    if (rol === 'MEDICO') {
-        usuarioData.especialidad = document.getElementById('newEspecialidad').value;
-        usuarioData.cedulaProfesional = document.getElementById('newCedula').value;
-        usuarioData.aniosExperiencia = parseInt(document.getElementById('newExperiencia').value);
-        usuarioData.telefono = document.getElementById('newTelefono').value;
-    }
-
-    if (rol === 'FARMACIA') {
-        usuarioData.nombreFarmacia = document.getElementById('newNombreFarmacia').value;
-        usuarioData.direccionFarmacia = document.getElementById('newDireccionFarmacia').value;
-        usuarioData.telefonoFarmacia = document.getElementById('newTelefonoFarmacia').value;
-        usuarioData.horarioFarmacia = document.getElementById('newHorarioFarmacia').value;
-    }
-
-    const response = await fetch('/api/admin/usuarios', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(usuarioData)
-    });
-
-    if (response.ok) {
-        document.getElementById('createUserMessage').innerText = ' Usuario creado exitosamente';
+    // Validaciones
+    if (!nombre || !apellido || !correo || !password) {
+        document.getElementById('createUserMessage').innerText = ' Complete todos los campos obligatorios';
+        document.getElementById('createUserMessage').style.color = '#ff4757';
         setTimeout(() => document.getElementById('createUserMessage').innerText = '', 3000);
-        await cargarUsuarios();
-        limpiarFormularioUsuario();
-    } else {
-        const error = await response.json();
-        document.getElementById('createUserMessage').innerText = ' ' + error.message;
+        return;
+    }
+
+    const usuarioData = {
+        nombre,
+        apellido,
+        correo,
+        password,
+        rol
+    };
+
+    // Datos específicos para MÉDICO
+    if (rol === 'MEDICO') {
+        const especialidad = document.getElementById('newEspecialidad').value;
+        const cedulaProfesional = document.getElementById('newCedula').value;
+        const aniosExperiencia = parseInt(document.getElementById('newExperiencia').value);
+        const telefono = document.getElementById('newTelefono').value;
+
+        if (!especialidad || !cedulaProfesional) {
+            document.getElementById('createUserMessage').innerText = ' Complete especialidad y cédula profesional';
+            document.getElementById('createUserMessage').style.color = '#ff4757';
+            setTimeout(() => document.getElementById('createUserMessage').innerText = '', 3000);
+            return;
+        }
+
+        usuarioData.especialidad = especialidad;
+        usuarioData.cedulaProfesional = cedulaProfesional;
+        usuarioData.aniosExperiencia = aniosExperiencia || 0;
+        usuarioData.telefono = telefono || '';
+    }
+
+    // Datos específicos para FARMACIA
+    if (rol === 'FARMACIA') {
+        const nombreFarmacia = document.getElementById('newNombreFarmacia').value;
+        const direccionFarmacia = document.getElementById('newDireccionFarmacia').value;
+        const telefonoFarmacia = document.getElementById('newTelefonoFarmacia').value;
+        const horarioFarmacia = document.getElementById('newHorarioFarmacia').value;
+
+        if (!nombreFarmacia || !direccionFarmacia) {
+            document.getElementById('createUserMessage').innerText = ' Complete nombre y dirección de la farmacia';
+            document.getElementById('createUserMessage').style.color = '#ff4757';
+            setTimeout(() => document.getElementById('createUserMessage').innerText = '', 3000);
+            return;
+        }
+
+        usuarioData.nombreFarmacia = nombreFarmacia;
+        usuarioData.direccionFarmacia = direccionFarmacia;
+        usuarioData.telefonoFarmacia = telefonoFarmacia || '';
+        usuarioData.horarioFarmacia = horarioFarmacia || '';
+    }
+
+    try {
+        const response = await fetch('/api/admin/usuarios', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(usuarioData)
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('createUserMessage').innerText = ` Usuario ${data.nombre} ${data.apellido} creado exitosamente`;
+            document.getElementById('createUserMessage').style.color = '#28a745';
+            setTimeout(() => {
+                document.getElementById('createUserMessage').innerText = '';
+            }, 3000);
+
+            // Recargar listas
+            await cargarUsuarios();
+            await cargarDoctores();
+            await cargarFarmacias();
+            limpiarFormularioUsuario();
+        } else {
+            const error = await response.json();
+            document.getElementById('createUserMessage').innerText = ' ' + (error.message || 'Error al crear usuario');
+            document.getElementById('createUserMessage').style.color = '#ff4757';
+            setTimeout(() => {
+                document.getElementById('createUserMessage').innerText = '';
+            }, 3000);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('createUserMessage').innerText = ' Error de conexión al servidor';
         document.getElementById('createUserMessage').style.color = '#ff4757';
         setTimeout(() => {
             document.getElementById('createUserMessage').innerText = '';
-            document.getElementById('createUserMessage').style.color = '#28a745';
         }, 3000);
     }
 }
 
-// Crear medicamento
-// Crear medicamento con stock
 async function crearMedicamento() {
     const nombre = document.getElementById('medNombre').value;
     const descripcion = document.getElementById('medDescripcion').value;
@@ -279,7 +334,7 @@ async function crearMedicamento() {
     const stockInicial = parseInt(document.getElementById('medStockInicial').value) || 100;
 
     if (!nombre || !precio) {
-        document.getElementById('createMedMessage').innerText = '❌ Complete nombre y precio';
+        document.getElementById('createMedMessage').innerText = ' Complete nombre y precio';
         document.getElementById('createMedMessage').style.color = '#ff4757';
         setTimeout(() => document.getElementById('createMedMessage').innerText = '', 3000);
         return;
@@ -292,7 +347,13 @@ async function crearMedicamento() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ nombre, descripcion, precio, requiereReceta, stockInicial })
+            body: JSON.stringify({
+                nombre,
+                descripcion,
+                precio,
+                requiereReceta,
+                stockInicial
+            })
         });
 
         if (response.ok) {
@@ -300,6 +361,7 @@ async function crearMedicamento() {
             document.getElementById('createMedMessage').style.color = '#28a745';
             setTimeout(() => document.getElementById('createMedMessage').innerText = '', 3000);
             await cargarMedicamentos();
+            await cargarInventario(); // <-- Recargar inventario
             limpiarFormularioMedicamento();
         } else {
             const error = await response.json();
@@ -313,23 +375,54 @@ async function crearMedicamento() {
         setTimeout(() => document.getElementById('createMedMessage').innerText = '', 3000);
     }
 }
-
 // Eliminar medicamento
 async function eliminarMedicamento(id) {
-    if (confirm('¿Estás seguro de eliminar este medicamento?')) {
-        const response = await fetch(`/api/admin/medicamentos/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+    if (confirm('¿Estás seguro de eliminar este medicamento? Esta acción no se puede deshacer.')) {
+        try {
+            const response = await fetch(`/api/admin/medicamentos/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
 
-        if (response.ok) {
-            await cargarMedicamentos();
-        } else {
-            alert('Error al eliminar medicamento');
+            if (response.ok) {
+                alert(' Medicamento eliminado correctamente');
+                // Recargar listas
+                await cargarMedicamentos();
+                await cargarInventario();
+            } else {
+                const error = await response.json();
+                alert(' Error: ' + (error.message || 'No se pudo eliminar el medicamento'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert(' Error de conexión al servidor');
         }
     }
 }
+// ========== MOSTRAR RECETAS ==========
+function mostrarRecetas(recetas) {
+    const container = document.getElementById('recetasList');
+    if (!recetas || recetas.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay recetas</p>';
+        return;
+    }
 
+    let html = `<table class="data-table">
+        <thead><tr><th>ID</th><th>Fecha</th><th>Diagnóstico</th><th>Estado</th><th>Total</th></tr></thead>
+        <tbody>`;
+    recetas.forEach(r => {
+        const estadoClass = r.estado === 'PENDIENTE' ? 'status-pendiente' : (r.estado === 'SURTIDA' ? 'status-surtida' : 'status-cancelada');
+        html += `<tr>
+            <td>${r.idReceta}</td>
+            <td>${r.fechaEmision}</td>
+            <td>${r.diagnostico?.substring(0, 50) || '-'}${r.diagnostico?.length > 50 ? '...' : ''}</td>
+            <td><span class="${estadoClass}">${r.estado}</span></td>
+            <td>$${r.total}</td>
+        </tr>`;
+    });
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+}
 // Mostrar/ocultar campos según rol
 document.addEventListener('DOMContentLoaded', () => {
     const rolSelect = document.getElementById('newRol');
@@ -351,6 +444,120 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+// ========== CARGAR AUDITORÍA ==========
+let auditoriaCompleta = [];
+
+async function cargarAuditoria() {
+    try {
+        const response = await fetch('/api/admin/auditoria', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            auditoriaCompleta = await response.json();
+            mostrarAuditoria(auditoriaCompleta);
+        } else {
+            document.getElementById('auditoriaList').innerHTML = '<p class="error">Error al cargar auditoría</p>';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('auditoriaList').innerHTML = '<p class="error">Error de conexión</p>';
+    }
+}
+
+// ========== MOSTRAR AUDITORÍA ==========
+function mostrarAuditoria(auditoria) {
+    const container = document.getElementById('auditoriaList');
+    if (!auditoria || auditoria.length === 0) {
+        container.innerHTML = '<p class="text-muted">No hay registros de auditoría</p>';
+        return;
+    }
+
+    let html = `<table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Acción</th>
+                <th>Detalle</th>
+                <th>IP</th>
+                <th>Estado</th>
+            </thead>
+        <tbody>`;
+
+    auditoria.forEach(a => {
+        const fecha = new Date(a.fecha).toLocaleString('es-MX');
+        const accionClass = getAccionClass(a.accion);
+        const estadoClass = a.exitoso ? 'status-surtida' : 'status-cancelada';
+        const estadoTexto = a.exitoso ? 'Éxito' : ' Fallo';
+
+        html += `         <tr>
+            <td>${a.idAuditoria}</td>
+            <td>${fecha}</td>
+            <td><strong>${a.usuarioCorreo || '-'}</strong></td>
+            <td>${a.usuarioRol || '-'}</td>
+            <td><span class="${accionClass}">${a.accion}</span></td>
+            <td>${a.detalle || '-'}</td>
+            <td>${a.ip || '-'}</td>
+            <td><span class="${estadoClass}">${estadoTexto}</span></td>
+        </tr>`;
+    });
+
+    html += `</tbody>
+    </table>`;
+    container.innerHTML = html;
+}
+
+// ========== OBTENER CLASE SEGÚN ACCIÓN ==========
+function getAccionClass(accion) {
+    switch(accion) {
+        case 'LOGIN':
+            return 'accion-login';
+        case 'LOGIN_FALLIDO':
+            return 'accion-login-fallido';
+        case 'CREAR_RECETA':
+            return 'accion-crear-receta';
+        case 'DISPENSAR_RECETA':
+            return 'accion-dispensar-receta';
+        case 'CREAR_CITA':
+            return 'accion-crear-cita';
+        default:
+            return 'accion-other';
+    }
+}
+
+// ========== APLICAR FILTROS ==========
+function aplicarFiltros() {
+    const filtroUsuario = document.getElementById('filtroUsuario').value.toLowerCase();
+    const filtroAccion = document.getElementById('filtroAccion').value;
+
+    let resultados = [...auditoriaCompleta];
+
+    if (filtroUsuario) {
+        resultados = resultados.filter(a =>
+            a.usuarioCorreo && a.usuarioCorreo.toLowerCase().includes(filtroUsuario)
+        );
+    }
+
+    if (filtroAccion) {
+        resultados = resultados.filter(a => a.accion === filtroAccion);
+    }
+
+    mostrarAuditoria(resultados);
+}
+
+// ========== ACTUALIZAR cargarDatosIniciales ==========
+async function cargarDatosIniciales() {
+    await cargarUsuarios();
+    await cargarDoctores();
+    await cargarFarmacias();
+    await cargarClientes();
+    await cargarMedicamentos();
+    await cargarRecetas();
+    await cargarAuditoria();  // <-- Agregar auditoría
+}
 
 function limpiarFormularioUsuario() {
     document.getElementById('newNombre').value = '';

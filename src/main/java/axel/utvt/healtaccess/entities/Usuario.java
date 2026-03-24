@@ -56,12 +56,10 @@ public class Usuario {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Relación con Doctor - AGREGAR @JsonIgnore
     @JsonIgnore
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
     private Doctor doctor;
 
-    // Relación con Farmacia - AGREGAR @JsonIgnore
     @JsonIgnore
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
     private Farmacia farmacia;

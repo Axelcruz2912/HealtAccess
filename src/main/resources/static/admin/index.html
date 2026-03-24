@@ -196,6 +196,33 @@
             </div>
             <div id="recetasList" class="table-container"></div>
         </div>
+
+        <!-- Auditoría -->
+        <div class="card">
+            <div class="card-header">
+                <h3> Registro de Auditoría</h3>
+                <div class="auditoria-filtros">
+                    <input type="text" id="filtroUsuario" placeholder="Filtrar por usuario" class="filtro-input">
+                    <select id="filtroAccion" class="filtro-select">
+                        <option value="">Todas las acciones</option>
+                        <option value="LOGIN">Login</option>
+                        <option value="LOGIN_FALLIDO">Login Fallido</option>
+                        <option value="CREAR_RECETA">Crear Receta</option>
+                        <option value="EDITAR_RECETA">Editar Receta</option>
+                        <option value="DISPENSAR_RECETA">Dispensar Receta</option>
+                        <option value="CREAR_CITA">Crear Cita</option>
+                        <option value="CANCELAR_CITA">Cancelar Cita</option>
+                        <option value="CREAR_USUARIO">Crear Usuario</option>
+                        <option value="ACTUALIZAR_ESTADO_CITA">Actualizar Estado Cita</option>
+                    </select>
+                    <button class="btn-secondary" onclick="aplicarFiltros()">Filtrar</button>
+                    <button class="btn-refresh" onclick="cargarAuditoria()">⟳</button>
+                </div>
+            </div>
+            <div id="auditoriaList" class="table-container">
+                <p class="text-muted">Haz clic en el botón para cargar la auditoría</p>
+            </div>
+        </div>
     </div>
 </div>
 
