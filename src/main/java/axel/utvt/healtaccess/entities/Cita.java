@@ -1,7 +1,7 @@
 package axel.utvt.healtaccess.entities;
 
-
 import axel.utvt.healtaccess.entities.enums.EstadoCita;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -37,10 +37,12 @@ public class Cita {
     @Column(columnDefinition = "TEXT")
     private String observaciones;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "id_cliente", nullable = false)
     private Cliente cliente;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "id_doctor", nullable = false)
     private Doctor doctor;
@@ -49,6 +51,7 @@ public class Cita {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "cita")
     private Receta receta;
 }

@@ -8,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -21,7 +22,6 @@ public class Farmacia {
     @Column(name = "id_farmacia")
     private Integer idFarmacia;
 
-    // AGREGAR @JsonIgnore AQUÍ
     @JsonIgnore
     @OneToOne
     @JoinColumn(name = "id_usuario", nullable = false, unique = true)
@@ -49,13 +49,13 @@ public class Farmacia {
 
     @JsonIgnore
     @OneToMany(mappedBy = "farmacia")
-    private List<DoctorFarmacia> doctorFarmacias;
+    private List<DoctorFarmacia> doctorFarmacias = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "farmacia")
-    private List<Receta> recetas;
+    private List<Receta> recetas = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "farmacia")
-    private List<Inventario> inventarios;
+    private List<Inventario> inventarios = new ArrayList<>();
 }

@@ -1,6 +1,8 @@
 package axel.utvt.healtaccess.services;
 
+import axel.utvt.healtaccess.entities.Farmacia;
 import axel.utvt.healtaccess.entities.Inventario;
+import axel.utvt.healtaccess.repositories.FarmaciaRepository;
 import axel.utvt.healtaccess.repositories.InventarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import java.util.List;
 public class InventarioService {
 
     private final InventarioRepository inventarioRepository;
+    private final FarmaciaRepository farmaciaRepository;
 
     public boolean validarStock(Integer idFarmacia, Integer idMedicamento, Integer cantidad) {
         return inventarioRepository.getStock(idFarmacia, idMedicamento)
@@ -28,6 +31,28 @@ public class InventarioService {
         }
     }
 
+    public List<Inventario> obtenerInventarioPorUsuario(Integer idUsuario) {
+        // Obtener la farmacia asociada al usuario
+        Farmacia farmacia = farmaciaRepository.findByUsuario_IdUsuario(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Farmacia no encontrada para este usuario"));
+
+        return inventarioRepository.findByFarmacia_IdFarmacia(farmacia.getIdFarmacia());
+    }
+
+    public List<Inventario> obtenerStockBajoPorUsuario(Integer idUsuario) {
+        // Obtener la farmacia asociada al usuario
+        Farmacia farmacia = farmaciaRepository.findByUsuario_IdUsuario(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Farmacia no encontrada para este usuario"));
+
+        List<Inventario> inventario = inventarioRepository.findByFarmacia_IdFarmacia(farmacia.getIdFarmacia());
+
+        // Filtrar productos con stock bajo (stock <= stock_minimo)
+        return inventario.stream()
+                .filter(i -> i.getStock() <= i.getStockMinimo())
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    // Método existente
     public List<Inventario> obtenerInventarioPorFarmacia(Integer idFarmacia) {
         return inventarioRepository.findByFarmacia_IdFarmacia(idFarmacia);
     }

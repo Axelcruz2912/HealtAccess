@@ -1,5 +1,6 @@
 package axel.utvt.healtaccess.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -13,6 +14,7 @@ public class RecetaDetalle {
     @EmbeddedId
     private RecetaDetalleId id;
 
+    @JsonIgnore
     @ManyToOne
     @MapsId("idReceta")
     @JoinColumn(name = "id_receta")

@@ -27,9 +27,16 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // ========== ARCHIVOS ESTÁTICOS (HTML, CSS, JS) ==========
+                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/index.html").permitAll()
+                        .requestMatchers("/css/**").permitAll()
+                        .requestMatchers("/js/**").permitAll()
+                        .requestMatchers("/static/**").permitAll()
+                        .requestMatchers("/favicon.ico").permitAll()
+
                         // ========== ENDPOINTS PÚBLICOS ==========
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/auth/logout").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
 
                         // ========== RUTAS DE SWAGGER ==========
@@ -38,15 +45,17 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
-                        // =====================================
 
-                        // ========== TODOS LOS ENDPOINTS PROTEGIDOS ==========
-                        // ADMINISTRADOR puede acceder a TODO
-                        .requestMatchers("/api/admin/**").hasAuthority("ADMINISTRADOR")
+                        // ========== ENDPOINTS POR ROL ==========
                         .requestMatchers("/api/medico/**").hasAnyAuthority("MEDICO", "ADMINISTRADOR")
                         .requestMatchers("/api/farmacia/**").hasAnyAuthority("FARMACIA", "ADMINISTRADOR")
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMINISTRADOR")
                         .requestMatchers("/api/recetas/**").hasAnyAuthority("MEDICO", "FARMACIA", "ADMINISTRADOR")
-                        // ====================================================
+
+                        .requestMatchers("/admin/**").permitAll()
+                        .requestMatchers("/medico/**").permitAll()
+                        .requestMatchers("/farmacia/**").permitAll()
+                        .requestMatchers("/api/public/**").permitAll()
 
                         .anyRequest().authenticated()
                 )

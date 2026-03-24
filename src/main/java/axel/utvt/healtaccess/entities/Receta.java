@@ -1,6 +1,7 @@
 package axel.utvt.healtaccess.entities;
 
 import axel.utvt.healtaccess.entities.enums.EstadoReceta;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -38,19 +40,20 @@ public class Receta {
     @JoinColumn(name = "id_cita", nullable = false)
     private Cita cita;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "id_farmacia", nullable = false)
     private Farmacia farmacia;
-
-    // NO agregar doctor aquí, se obtiene a través de cita.getDoctor()
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "receta", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RecetaDetalle> detalles;
+    private List<RecetaDetalle> detalles = new ArrayList<>();
 
+    @JsonIgnore
     @OneToOne(mappedBy = "receta")
     private Pago pago;
 }

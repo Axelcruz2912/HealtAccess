@@ -1,5 +1,6 @@
 package axel.utvt.healtaccess.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -7,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -38,9 +40,11 @@ public class Medicamento {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "medicamento")
-    private List<RecetaDetalle> recetaDetalles;
+    private List<RecetaDetalle> recetaDetalles = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "medicamento")
-    private List<Inventario> inventarios;
+    private List<Inventario> inventarios = new ArrayList<>();
 }

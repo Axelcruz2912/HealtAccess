@@ -27,6 +27,7 @@ public class AdminController {
     private final RecetaRepository recetaRepository;
     private final ClienteRepository clienteRepository;
     private final PasswordEncoder passwordEncoder;
+    private final InventarioRepository inventarioRepository; // <-- AGREGAR ESTO
 
     // ========== USUARIOS ==========
 
@@ -37,12 +38,10 @@ public class AdminController {
 
     @PostMapping("/usuarios")
     public ResponseEntity<Usuario> crearUsuario(@Valid @RequestBody UsuarioRequest request) {
-        // Verificar si el correo ya existe
         if (usuarioRepository.existsByCorreo(request.getCorreo())) {
             throw new RuntimeException("El correo ya está registrado");
         }
 
-        // Crear nuevo usuario
         Usuario usuario = new Usuario();
         usuario.setNombre(request.getNombre());
         usuario.setApellido(request.getApellido());
@@ -54,7 +53,6 @@ public class AdminController {
 
         Usuario savedUsuario = usuarioRepository.save(usuario);
 
-        // Si el rol es MEDICO, crear registro en Doctor
         if (request.getRol().name().equals("MEDICO") && request.getEspecialidad() != null) {
             Doctor doctor = new Doctor();
             doctor.setUsuario(savedUsuario);
@@ -65,7 +63,6 @@ public class AdminController {
             doctorRepository.save(doctor);
         }
 
-        // Si el rol es FARMACIA, crear registro en Farmacia
         if (request.getRol().name().equals("FARMACIA") && request.getNombreFarmacia() != null) {
             Farmacia farmacia = new Farmacia();
             farmacia.setUsuario(savedUsuario);
@@ -118,6 +115,7 @@ public class AdminController {
 
     @PostMapping("/medicamentos")
     public ResponseEntity<Medicamento> crearMedicamento(@Valid @RequestBody MedicamentoRequest request) {
+        // Crear medicamento
         Medicamento medicamento = new Medicamento();
         medicamento.setNombre(request.getNombre());
         medicamento.setDescripcion(request.getDescripcion());
@@ -125,7 +123,28 @@ public class AdminController {
         medicamento.setRequiereReceta(request.getRequiereReceta());
         medicamento.setActivo(true);
 
-        return ResponseEntity.ok(medicamentoRepository.save(medicamento));
+        Medicamento savedMedicamento = medicamentoRepository.save(medicamento);
+
+        // ========== CREAR INVENTARIO AUTOMÁTICAMENTE ==========
+        // Obtener la primera farmacia (la única que existe)
+        Farmacia farmacia = farmaciaRepository.findAll().stream().findFirst()
+                .orElseThrow(() -> new RuntimeException("No hay farmacia registrada en el sistema"));
+
+        // Crear inventario para el nuevo medicamento con stock inicial
+        Inventario inventario = new Inventario();
+        InventarioId inventarioId = new InventarioId();
+        inventarioId.setIdFarmacia(farmacia.getIdFarmacia());
+        inventarioId.setIdMedicamento(savedMedicamento.getIdMedicamento());
+        inventario.setId(inventarioId);
+        inventario.setFarmacia(farmacia);
+        inventario.setMedicamento(savedMedicamento);
+        inventario.setStock(100); // Stock inicial por defecto
+        inventario.setStockMinimo(10);
+
+        inventarioRepository.save(inventario);
+        // ===================================================
+
+        return ResponseEntity.ok(savedMedicamento);
     }
 
     @PutMapping("/medicamentos/{id}")
@@ -150,6 +169,18 @@ public class AdminController {
         medicamento.setActivo(false);
         medicamentoRepository.save(medicamento);
 
+        // Opcional: también desactivar el inventario
+        Farmacia farmacia = farmaciaRepository.findAll().stream().findFirst().orElse(null);
+        if (farmacia != null) {
+            InventarioId inventarioId = new InventarioId();
+            inventarioId.setIdFarmacia(farmacia.getIdFarmacia());
+            inventarioId.setIdMedicamento(id);
+            inventarioRepository.findById(inventarioId).ifPresent(inv -> {
+                inv.setStock(0);
+                inventarioRepository.save(inv);
+            });
+        }
+
         return ResponseEntity.ok("Medicamento desactivado");
     }
 
@@ -162,7 +193,6 @@ public class AdminController {
     // ========== REPORTES ==========
     @GetMapping("/reportes/recetas-por-estado")
     public ResponseEntity<?> reporteRecetasPorEstado() {
-        // Implementar reporte
         return ResponseEntity.ok("Reporte generado");
     }
 }

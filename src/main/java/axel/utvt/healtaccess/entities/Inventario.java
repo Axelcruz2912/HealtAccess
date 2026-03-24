@@ -1,5 +1,6 @@
 package axel.utvt.healtaccess.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -16,6 +17,7 @@ public class Inventario {
     @EmbeddedId
     private InventarioId id;
 
+    @JsonIgnore
     @ManyToOne
     @MapsId("idFarmacia")
     @JoinColumn(name = "id_farmacia")

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Médico | Sistema Farmacia</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<!-- Dashboard Médico -->
+<div id="dashboard">
+    <div class="dashboard-header">
+        <div class="logo">
+            <h2> Sistema Farmacia - Médico</h2>
+        </div>
+        <div class="user-info">
+            <div class="user-details">
+                <span class="user-name" id="userName"></span>
+                <span class="user-role" id="userRole"></span>
+            </div>
+            <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Estadísticas Médico -->
+        <div class="cards-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="card" style="text-align: center;">
+                <h3>📋 Mis Recetas</h3>
+                <p id="totalRecetas" style="font-size: 32px; font-weight: bold;">0</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <h3> Mis Citas</h3>
+                <p id="totalCitas" style="font-size: 32px; font-weight: bold;">0</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <h3> Pacientes Atendidos</h3>
+                <p id="totalPacientes" style="font-size: 32px; font-weight: bold;">0</p>
+            </div>
+        </div>
+
+        <!-- Mis Recetas -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Mis Recetas</h3>
+                <button class="btn-refresh" onclick="cargarRecetas()">⟳</button>
+            </div>
+            <div id="recetasList" class="table-container">
+                <p class="text-muted">Haz clic en el botón para cargar tus recetas</p>
+            </div>
+        </div>
+
+        <!-- Mis Citas -->
+        <div class="card">
+            <div class="card-header">
+                <h3> Mis Citas</h3>
+                <button class="btn-refresh" onclick="cargarCitas()">⟳</button>
+            </div>
+            <div id="citasList" class="table-container">
+                <p class="text-muted">Haz clic en el botón para cargar tus citas</p>
+            </div>
+        </div>
+
+        <!-- Crear Nueva Receta -->
+        <div class="card">
+            <div class="card-header">
+                <h3> Crear Nueva Receta</h3>
+            </div>
+            <div class="form-group">
+                <label> ID de la Cita</label>
+                <input type="number" id="recetaCitaId" placeholder="Ej: 1">
+            </div>
+            <div class="form-group">
+                <label> Diagnóstico</label>
+                <textarea id="recetaDiagnostico" rows="3" placeholder="Describe el diagnóstico..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Medicamentos</label>
+                <div id="medicamentosLista"></div>
+                <div class="add-medicamento-row">
+                    <select id="selectMedicamento" class="medicamento-select">
+                        <option value="">-- Seleccione un medicamento --</option>
+                    </select>
+                    <input type="number" id="selectCantidad" class="cantidad-input" placeholder="Cantidad" min="1">
+                    <input type="text" id="selectIndicaciones" class="indicaciones-input" placeholder="Indicaciones">
+                    <button type="button" class="btn-secondary" onclick="agregarMedicamentoDesdeSelect()">+ Agregar</button>
+                </div>
+                <div id="stockInfo" class="stock-info"></div>
+            </div>
+            <button class="btn-primary" onclick="crearReceta()">Crear Receta</button>
+            <div id="createRecetaMessage" class="success-message"></div>
+        </div>
+
+        <!-- Crear Nueva Cita -->
+        <div class="card">
+            <div class="card-header">
+                <h3> Crear Nueva Cita</h3>
+            </div>
+            <div class="form-group">
+                <label> Cliente (Paciente)</label>
+                <select id="citaClienteId" class="cliente-select">
+                    <option value="">-- Seleccione un paciente --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label> Fecha</label>
+                <input type="date" id="citaFecha" min="">
+            </div>
+            <div class="form-group">
+                <label> Hora</label>
+                <input type="time" id="citaHora">
+            </div>
+            <div class="form-group">
+                <label> Motivo de la consulta</label>
+                <textarea id="citaMotivo" rows="2" placeholder="Describa el motivo de la consulta..."></textarea>
+            </div>
+            <button class="btn-primary" onclick="crearCita()">Crear Cita</button>
+            <div id="createCitaMessage" class="success-message"></div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/auth.js"></script>
+<script src="/js/medico.js"></script>
+</body>
+</html>

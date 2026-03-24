@@ -12,7 +12,6 @@ public class RecetaRequest {
     @NotNull(message = "El ID de la cita es obligatorio")
     private Integer idCita;
 
-    @NotNull(message = "El ID de la farmacia es obligatorio")
     private Integer idFarmacia;
 
     @NotBlank(message = "El diagnóstico es obligatorio")

@@ -10,7 +10,7 @@ import axel.utvt.healtaccess.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.ArrayList;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,6 +37,7 @@ public class RecetaService {
         Farmacia farmacia = farmaciaRepository.findById(request.getIdFarmacia())
                 .orElseThrow(() -> new RuntimeException("Farmacia no encontrada"));
 
+        // Crear receta
         Receta receta = new Receta();
         receta.setCita(cita);
         receta.setFarmacia(farmacia);
@@ -49,6 +50,7 @@ public class RecetaService {
 
         BigDecimal total = BigDecimal.ZERO;
 
+        // Crear y guardar cada detalle
         for (RecetaDetalleRequest detalleRequest : request.getDetalles()) {
             Medicamento medicamento = medicamentoRepository.findById(detalleRequest.getIdMedicamento())
                     .orElseThrow(() -> new RuntimeException("Medicamento no encontrado"));
@@ -68,6 +70,9 @@ public class RecetaService {
             detalle.setIndicaciones(detalleRequest.getIndicaciones());
 
             recetaDetalleRepository.save(detalle);
+
+            // Agregar el detalle a la lista de la receta
+            savedReceta.getDetalles().add(detalle);
         }
 
         savedReceta.setTotal(total);
@@ -149,26 +154,28 @@ public class RecetaService {
         response.setEstado(receta.getEstado());
         response.setTotal(receta.getTotal());
         response.setIdCita(receta.getCita().getIdCita());
-
         response.setIdDoctor(receta.getCita().getDoctor().getIdDoctor());
         response.setDoctorNombre(receta.getCita().getDoctor().getUsuario().getNombre());
         response.setDoctorApellido(receta.getCita().getDoctor().getUsuario().getApellido());
-
         response.setIdFarmacia(receta.getFarmacia().getIdFarmacia());
         response.setFarmaciaNombre(receta.getFarmacia().getNombre());
 
-        List<RecetaDetalleResponse> detalles = receta.getDetalles().stream()
-                .map(detalle -> {
-                    RecetaDetalleResponse detalleResponse = new RecetaDetalleResponse();
-                    detalleResponse.setIdMedicamento(detalle.getMedicamento().getIdMedicamento());
-                    detalleResponse.setMedicamentoNombre(detalle.getMedicamento().getNombre());
-                    detalleResponse.setCantidad(detalle.getCantidad());
-                    detalleResponse.setPrecioUnitario(detalle.getPrecioUnitario());
-                    detalleResponse.setSubtotal(detalle.getPrecioUnitario().multiply(BigDecimal.valueOf(detalle.getCantidad())));
-                    detalleResponse.setIndicaciones(detalle.getIndicaciones());
-                    return detalleResponse;
-                })
-                .collect(Collectors.toList());
+        // Verificar que detalles no sea null
+        List<RecetaDetalleResponse> detalles = new ArrayList<>();
+        if (receta.getDetalles() != null) {
+            detalles = receta.getDetalles().stream()
+                    .map(detalle -> {
+                        RecetaDetalleResponse detalleResponse = new RecetaDetalleResponse();
+                        detalleResponse.setIdMedicamento(detalle.getMedicamento().getIdMedicamento());
+                        detalleResponse.setMedicamentoNombre(detalle.getMedicamento().getNombre());
+                        detalleResponse.setCantidad(detalle.getCantidad());
+                        detalleResponse.setPrecioUnitario(detalle.getPrecioUnitario());
+                        detalleResponse.setSubtotal(detalle.getPrecioUnitario().multiply(BigDecimal.valueOf(detalle.getCantidad())));
+                        detalleResponse.setIndicaciones(detalle.getIndicaciones());
+                        return detalleResponse;
+                    })
+                    .collect(Collectors.toList());
+        }
 
         response.setDetalles(detalles);
         return response;

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Sistema Farmacia</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="dashboard">
+    <div class="dashboard-header">
+        <div class="logo">
+            <h2> Sistema Farmacia - Administrador</h2>
+        </div>
+        <div class="user-info">
+            <div class="user-details">
+                <span class="user-name" id="userName"></span>
+                <span class="user-role" id="userRole"></span>
+            </div>
+            <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Estadísticas -->
+        <div class="cards-grid" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="card" style="text-align: center;">
+                <h3>Usuarios</h3>
+                <p id="totalUsuarios" style="font-size: 32px; font-weight: bold;">0</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <h3> Doctores</h3>
+                <p id="totalDoctores" style="font-size: 32px; font-weight: bold;">0</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <h3> Medicamentos</h3>
+                <p id="totalMedicamentos" style="font-size: 32px; font-weight: bold;">0</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <h3> Recetas</h3>
+                <p id="totalRecetas" style="font-size: 32px; font-weight: bold;">0</p>
+            </div>
+        </div>
+
+        <!-- Gestión de Usuarios -->
+        <div class="card">
+            <div class="card-header">
+                <h3> Gestión de Usuarios</h3>
+                <button class="btn-refresh" onclick="cargarUsuarios()">⟳</button>
+            </div>
+            <div id="usuariosList" class="table-container"></div>
+        </div>
+
+        <!-- Crear Usuario -->
+        <div class="card">
+            <div class="card-header">
+                <h3> Crear Nuevo Usuario</h3>
+            </div>
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="newNombre" placeholder="Nombre">
+            </div>
+            <div class="form-group">
+                <label>Apellido</label>
+                <input type="text" id="newApellido" placeholder="Apellido">
+            </div>
+            <div class="form-group">
+                <label>Correo</label>
+                <input type="email" id="newCorreo" placeholder="correo@ejemplo.com">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="newPassword" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+                <label>Rol</label>
+                <select id="newRol">
+                    <option value="ADMINISTRADOR">Administrador</option>
+                    <option value="MEDICO">Médico</option>
+                    <option value="FARMACIA">Farmacia</option>
+                </select>
+            </div>
+            <div id="medicoFields" style="display: none;">
+                <div class="form-group">
+                    <label>Especialidad</label>
+                    <input type="text" id="newEspecialidad" placeholder="Ej: Cardiología">
+                </div>
+                <div class="form-group">
+                    <label>Cédula Profesional</label>
+                    <input type="text" id="newCedula" placeholder="Número de cédula">
+                </div>
+                <div class="form-group">
+                    <label>Años de Experiencia</label>
+                    <input type="number" id="newExperiencia" placeholder="Años">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" id="newTelefono" placeholder="Teléfono">
+                </div>
+            </div>
+            <div id="farmaciaFields" style="display: none;">
+                <div class="form-group">
+                    <label>Nombre de la Farmacia</label>
+                    <input type="text" id="newNombreFarmacia" placeholder="Nombre de la farmacia">
+                </div>
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input type="text" id="newDireccionFarmacia" placeholder="Dirección">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" id="newTelefonoFarmacia" placeholder="Teléfono">
+                </div>
+                <div class="form-group">
+                    <label>Horario</label>
+                    <input type="text" id="newHorarioFarmacia" placeholder="Lun-Vie 8am-8pm">
+                </div>
+            </div>
+            <button class="btn-primary" onclick="crearUsuario()">Crear Usuario</button>
+            <div id="createUserMessage" class="success-message"></div>
+        </div>
+
+        <!-- Gestión de Medicamentos -->
+        <div class="card">
+            <div class="card-header">
+                <h3> Gestión de Medicamentos</h3>
+                <button class="btn-refresh" onclick="cargarMedicamentos()">⟳</button>
+            </div>
+            <div id="medicamentosList" class="table-container"></div>
+        </div>
+
+        <!-- Crear Medicamento -->
+        <div class="card">
+            <div class="card-header">
+                <h3> Crear Nuevo Medicamento</h3>
+            </div>
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="medNombre" placeholder="Nombre del medicamento">
+            </div>
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea id="medDescripcion" rows="2" placeholder="Descripción"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Precio</label>
+                <input type="number" id="medPrecio" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>¿Requiere receta médica?</label>
+                <select id="medRequiereReceta">
+                    <option value="false">No</option>
+                    <option value="true">Sí</option>
+                </select>
+            </div>
+            <button class="btn-primary" onclick="crearMedicamento()">Crear Medicamento</button>
+            <div id="createMedMessage" class="success-message"></div>
+        </div>
+
+        <!-- Doctores -->
+        <div class="card">
+            <div class="card-header">
+                <h3>️ Lista de Doctores</h3>
+                <button class="btn-refresh" onclick="cargarDoctores()">⟳</button>
+            </div>
+            <div id="doctoresList" class="table-container"></div>
+        </div>
+
+        <!-- Farmacias -->
+        <div class="card">
+            <div class="card-header">
+                <h3> Lista de Farmacias</h3>
+                <button class="btn-refresh" onclick="cargarFarmacias()">⟳</button>
+            </div>
+            <div id="farmaciasList" class="table-container"></div>
+        </div>
+
+        <!-- Clientes -->
+        <div class="card">
+            <div class="card-header">
+                <h3> Clientes</h3>
+                <button class="btn-refresh" onclick="cargarClientes()">⟳</button>
+            </div>
+            <div id="clientesList" class="table-container"></div>
+        </div>
+
+        <!-- Recetas -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Todas las Recetas</h3>
+                <button class="btn-refresh" onclick="cargarRecetas()">⟳</button>
+            </div>
+            <div id="recetasList" class="table-container"></div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/auth.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

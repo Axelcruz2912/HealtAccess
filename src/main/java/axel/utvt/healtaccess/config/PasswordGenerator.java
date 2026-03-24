@@ -15,7 +15,7 @@ public class PasswordGenerator {
         System.out.println("==========================================");
 
         boolean matches = encoder.matches(password, hash);
-        System.out.println("Verificación: " + (matches ? "✅ CORRECTO" : "❌ INCORRECTO"));
+        System.out.println("Verificación: " + (matches ? " CORRECTO" : " INCORRECTO"));
 
         String password2 = "admin123";
         String hash2 = encoder.encode(password2);

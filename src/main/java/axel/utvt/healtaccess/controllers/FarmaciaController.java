@@ -1,6 +1,6 @@
 package axel.utvt.healtaccess.controllers;
 
-import axel.utvt.healtaccess.config.CustomUserDetails;
+import axel.utvt.healtaccess.config.CustomUserDetails;  // <-- AGREGAR ESTE IMPORT
 import axel.utvt.healtaccess.dto.DispensarRequest;
 import axel.utvt.healtaccess.dto.RecetaResponse;
 import axel.utvt.healtaccess.entities.Inventario;
@@ -32,11 +32,9 @@ public class FarmaciaController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         List<Receta> recetas = farmaciaService.obtenerRecetasPendientes(userDetails.getIdUsuario());
-
         List<RecetaResponse> responses = recetas.stream()
                 .map(receta -> recetaService.obtenerRecetaPorId(receta.getIdReceta()))
                 .collect(Collectors.toList());
-
         return ResponseEntity.ok(responses);
     }
 
@@ -63,14 +61,15 @@ public class FarmaciaController {
     public ResponseEntity<List<Inventario>> obtenerInventario(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        return ResponseEntity.ok(List.of());
+        List<Inventario> inventario = inventarioService.obtenerInventarioPorUsuario(userDetails.getIdUsuario());
+        return ResponseEntity.ok(inventario);
     }
 
     @GetMapping("/inventario/stock-bajo")
     public ResponseEntity<List<Inventario>> obtenerStockBajo(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        return ResponseEntity.ok(List.of());
+        List<Inventario> stockBajo = inventarioService.obtenerStockBajoPorUsuario(userDetails.getIdUsuario());
+        return ResponseEntity.ok(stockBajo);
     }
-
 }

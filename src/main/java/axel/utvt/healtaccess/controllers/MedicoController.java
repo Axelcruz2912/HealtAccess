@@ -1,9 +1,13 @@
 package axel.utvt.healtaccess.controllers;
 
 import axel.utvt.healtaccess.config.CustomUserDetails;
+import axel.utvt.healtaccess.dto.CitaRequest;
 import axel.utvt.healtaccess.dto.RecetaRequest;
 import axel.utvt.healtaccess.dto.RecetaResponse;
 import axel.utvt.healtaccess.entities.Cita;
+import axel.utvt.healtaccess.entities.Cliente;
+import axel.utvt.healtaccess.entities.Farmacia;
+import axel.utvt.healtaccess.repositories.FarmaciaRepository;
 import axel.utvt.healtaccess.services.MedicoService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -22,6 +26,8 @@ import java.util.List;
 public class MedicoController {
 
     private final MedicoService medicoService;
+    private final FarmaciaRepository farmaciaRepository;
+
 
     @PostMapping("/recetas")
     public ResponseEntity<RecetaResponse> crearReceta(
@@ -69,9 +75,28 @@ public class MedicoController {
 
     @GetMapping("/disponibilidad")
     public ResponseEntity<Boolean> verificarDisponibilidad(
-            @RequestParam Integer idFarmacia,
             @RequestParam Integer idMedicamento) {
 
-        return ResponseEntity.ok(medicoService.verificarDisponibilidadMedicamento(idFarmacia, idMedicamento));
+        // Obtener la única farmacia
+        Farmacia farmacia = farmaciaRepository.findAll().stream().findFirst()
+                .orElseThrow(() -> new RuntimeException("No hay farmacia registrada"));
+
+        return ResponseEntity.ok(medicoService.verificarDisponibilidadMedicamento(farmacia.getIdFarmacia(), idMedicamento));
     }
+
+    @PostMapping("/citas")
+    public ResponseEntity<Cita> crearCita(
+            @Valid @RequestBody CitaRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpServletRequest httpRequest) {
+
+        Cita cita = medicoService.crearCita(request, userDetails.getIdUsuario(), httpRequest.getRemoteAddr());
+        return ResponseEntity.ok(cita);
+    }
+
+    @GetMapping("/clientes")
+    public ResponseEntity<List<Cliente>> listarClientes() {
+        return ResponseEntity.ok(medicoService.listarClientes());
+    }
+
 }

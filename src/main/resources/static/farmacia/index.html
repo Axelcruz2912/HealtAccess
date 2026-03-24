@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmacia | Sistema Farmacia</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="dashboard">
+    <div class="dashboard-header">
+        <div class="logo">
+            <h2>🏥 Sistema Farmacia - Farmacia</h2>
+        </div>
+        <div class="user-info">
+            <div class="user-details">
+                <span class="user-name" id="userName"></span>
+                <span class="user-role" id="userRole"></span>
+            </div>
+            <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Estadísticas -->
+        <div class="cards-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="card" style="text-align: center;">
+                <h3> Recetas Pendientes</h3>
+                <p id="totalPendientes" style="font-size: 32px; font-weight: bold;">0</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <h3>Recetas Dispensadas</h3>
+                <p id="totalDispensadas" style="font-size: 32px; font-weight: bold;">0</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <h3> Stock Bajo</h3>
+                <p id="totalStockBajo" style="font-size: 32px; font-weight: bold;">0</p>
+            </div>
+        </div>
+
+        <!-- Recetas Pendientes -->
+        <div class="card">
+            <div class="card-header">
+                <h3> Recetas Pendientes de Dispensar</h3>
+                <button class="btn-refresh" onclick="cargarRecetasPendientes()">⟳</button>
+            </div>
+            <div id="recetasPendientesList" class="table-container">
+                <p class="text-muted">Haz clic en el botón para cargar recetas pendientes</p>
+            </div>
+        </div>
+
+        <!-- Inventario -->
+        <div class="card">
+            <div class="card-header">
+                <h3> Inventario Completo</h3>
+                <button class="btn-refresh" onclick="cargarInventario()">⟳</button>
+            </div>
+            <div id="inventarioList" class="table-container">
+                <p class="text-muted">Haz clic en el botón para cargar el inventario</p>
+            </div>
+        </div>
+
+        <!-- Stock Bajo -->
+        <div class="card">
+            <div class="card-header">
+                <h3> Productos con Stock Bajo</h3>
+                <button class="btn-refresh" onclick="cargarStockBajo()">⟳</button>
+            </div>
+            <div id="stockBajoList" class="table-container">
+                <p class="text-muted">Haz clic en el botón para ver productos con stock bajo</p>
+            </div>
+        </div>
+
+        <!-- Historial -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Historial de Recetas Dispensadas</h3>
+                <button class="btn-refresh" onclick="cargarRecetasDispensadas()">⟳</button>
+            </div>
+            <div id="recetasDispensadasList" class="table-container">
+                <p class="text-muted">Haz clic en el botón para ver historial</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para dispensar -->
+<div id="modalDispensar" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3> Confirmar Dispensación</h3>
+            <span class="modal-close" onclick="cerrarModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>¿Estás seguro de dispensar esta receta?</p>
+            <p><strong>ID Receta:</strong> <span id="modalRecetaId"></span></p>
+            <p><strong>Total:</strong> $<span id="modalTotal"></span></p>
+            <div id="modalMedicamentos"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+            <button class="btn-primary" onclick="confirmarDispensar()">Confirmar Dispensación</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/auth.js"></script>
+<script src="/js/farmacia.js"></script>
+</body>
+</html>

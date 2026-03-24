@@ -1,5 +1,6 @@
 package axel.utvt.healtaccess.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -50,10 +52,11 @@ public class Cliente {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Relaciones
+    @JsonIgnore
     @OneToMany(mappedBy = "cliente")
-    private List<Cita> citas;
+    private List<Cita> citas = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "cliente")
-    private List<HistorialMedico> historiales;
+    private List<HistorialMedico> historiales = new ArrayList<>();
 }
